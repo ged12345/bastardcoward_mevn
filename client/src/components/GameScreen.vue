@@ -1,8 +1,5 @@
 <template>
-  <component
-    v-bind:is="currentComponent"
-    v-on:endTitles="nextComponent"
-  ></component>
+  <component v-bind:is="currentComponent" v-on:endTitles="nextComponent"></component>
 </template>
 
 <script>
@@ -60,8 +57,9 @@ export default {
 
 .typewriter_default {
   font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
-  letter-spacing: 0.1em; /* Adjust as needed - was initially 0.15em*/
+  letter-spacing: 0.05em; /* Adjust as needed - was initially 0.15em*/
   font-size: 22px;
+  line-height: 28px;
 }
 
 .typewriter_blanco {

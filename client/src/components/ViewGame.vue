@@ -45,6 +45,8 @@ export default {
 
     // Then we request every action to do with this room, and after the first pass where we set the description, we replace each number with whatever special symbol we decide on with a link to the action and a generic function that will run our actions for us. May even add a field in action to link to another action (one after another so we can chain them together).
 
+    // There will also eventually be monsters, and when that happens we'll go to another screen and then come back once the battle is over.
+
     const levelString = `<br><strong>${locationResponse.data[0].title}</strong><br><br>${locationResponse.data[0].description}`;
 
     var levelStringIndex = 0;
@@ -58,6 +60,9 @@ export default {
 
     setInterval(() => {
       if (levelStringIndex > levelString.length - 1) return;
+
+      // Make this more efficient - needs to be called per a line, not per a character but is working as auto-scrolling
+      window.scrollBy(0, 100);
 
       if (levelStringHTMLTextIndex <= levelStringHTMLTextEndIndex - 1) {
         levelStringHTMLTextIndex = levelStringHTMLTextIndex + 1;
@@ -136,5 +141,12 @@ export default {
 <style>
 #logo {
   display: inline !important;
+}
+
+.typewriter {
+  position: unset !important;
+  top: 0%;
+  left: 0%;
+  transform: unset !important;
 }
 </style>
