@@ -1,0 +1,77 @@
+<template>
+  <div class="actions">
+    <h1>Add Action</h1>
+    <div class="form">
+      <div>
+        <input type="text" name="location_id" placeholder="LOCATION ID" v-model="location_id" />
+      </div>
+      <!--<div>
+        <input placeholder="TYPE" v-model="type" />
+      </div>-->
+      <div class="panel-body">
+        <acactiontype v-on:childToParent="onQueryUpdate"></acactiontype>
+      </div>
+      <div>
+        <textarea rows="15" cols="15" placeholder="METADATA" v-model="metadata"></textarea>
+      </div>
+      <div>
+        <button class="app_action_btn" @click="addAction">Add</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import ActionsService from "@/services/ActionsService";
+import ActionTypeAutocomplete from "./ActionTypeAutocomplete";
+export default {
+  name: "NewAction",
+  data() {
+    return {
+      location_id: "",
+      type: "",
+      metadata: ""
+    };
+  },
+  methods: {
+    async addAction() {
+      await ActionsService.addAction({
+        location_id: this.location_id,
+        type: this.type,
+        metadata: this.metadata
+      });
+      this.$router.push({ name: "Actions" });
+    },
+    onQueryUpdate(value) {
+      this.type = value;
+    }
+  },
+  components: {
+    acactiontype: ActionTypeAutocomplete
+  }
+};
+</script>
+<style type="text/css">
+.form input,
+.form textarea {
+  width: 500px;
+  padding: 10px;
+  border: 1px solid #e0dede;
+  outline: none;
+  font-size: 12px;
+}
+.form div {
+  margin: 20px;
+}
+.app_action_btn {
+  background: #4d7ef7;
+  color: #fff;
+  padding: 10px 80px;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: bold;
+  width: 520px;
+  border: none;
+  cursor: pointer;
+}
+</style>
