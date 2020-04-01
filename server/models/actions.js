@@ -3,8 +3,10 @@ var Schema = mongoose.Schema;
 
 var ActionSchema = new Schema({
     location_id: Number,
+    location_num: Number,
     type: String,
-    metadata: String
+    metadata: String,
+    description: String
 });
 
 /*

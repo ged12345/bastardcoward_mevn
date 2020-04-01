@@ -3,22 +3,31 @@
     <h1>Actions</h1>
     <div v-if="actions.length > 0" class="table-wrap">
       <div>
-        <router-link v-bind:to="{ name: 'NewAction' }" class>Add Action</router-link>
+        <router-link v-bind:to="{ name: 'NewAction' }" class
+          >Add Action</router-link
+        >
       </div>
       <table>
         <tr>
           <td>Location ID</td>
-          <td width="150">Type</td>
-          <td width="450">Metadata</td>
+          <td width="50">Location Num</td>
+          <td width="50">Type</td>
+          <td width="250">Metadata</td>
+          <td width="250">Description</td>
           <td width="100" align="center">Action</td>
         </tr>
         <tr v-for="action in actions">
           <td>{{ action.location_id }}</td>
+          <td>{{ action.location_num }}</td>
           <td>{{ action.type }}</td>
           <td>{{ action.metadata }}</td>
+          <td>{{ action.description }}</td>
 
           <td align="center">
-            <router-link v-bind:to="{ name: 'EditAction', params: { id: action._id } }">Edit</router-link>&nbsp;|
+            <router-link
+              v-bind:to="{ name: 'EditAction', params: { id: action._id } }"
+              >Edit</router-link
+            >&nbsp;|
             <a href="#" @click="deleteAction(action._id)">Delete</a>
           </td>
         </tr>
@@ -28,7 +37,9 @@
       There are no actions. Lets add one now.
       <br />
       <br />
-      <router-link v-bind:to="{ name: 'NewAction' }" class="add_action_link">Add Action</router-link>
+      <router-link v-bind:to="{ name: 'NewAction' }" class="add_action_link"
+        >Add Action</router-link
+      >
     </div>
   </div>
 </template>

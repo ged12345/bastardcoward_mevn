@@ -1,5 +1,8 @@
 <template>
-  <view-title></view-title>
+  <component
+    v-bind:is="currentComponent"
+    v-on:endTitles="nextComponent"
+  ></component>
 </template>
 
 <script>
@@ -17,122 +20,15 @@ export default {
     "view-title": ViewTitle,
     "view-game": ViewGame
   },
-  mounted() {
-    const log = document.getElementById("console");
-
-    document.addEventListener("keyup", logKey);
-
-    function logKey(e) {
-      if (`${e.key}` === "Enter") log.innerHTML += "<br />";
-      else if (`${e.key}` === "Backspace") {
-        var newStr = log.innerHTML.split(""); // or newStr = [...str];
-        newStr.splice(newStr.length - 1, 1);
-        newStr = newStr.join("");
-        log.innerHTML = newStr;
-      } else if (
-        `${e.key}` !== "Shift" &&
-        `${e.key}` !== "Control" &&
-        `${e.key}` !== "Alt"
-      )
-        log.innerHTML += `${e.key}`;
-    }
-
-    const levelString =
-      //'<div style="font-face: Ringbearer">Heart of the Bastard Coward</div>';
-      "<br><strong>DROP OFF</strong><br><br>In Russia, the Kremlin told <i>journalists</i> who cover President Vladimir <h2>Putin</h2> to stay away from official events if they felt unwell as a precautionary measure to protect Kremlin staff from the coronavirus. <br> <br>Moscow says it has officially recorded 34 cases of coronavirus. It says nobody has died from the virus in Russia. ";
-    var levelStringIndex = 0;
-    var levelStringHTMLTextIndex = 0;
-    var levelStringHTMLTextStartIndex = 0;
-    var levelStringHTMLTextEndIndex = 0;
-    var levelStringHTMLTextLength = 0;
-    var startTag = "";
-    var endTag = "";
-    var firstTime = true;
-
-    setInterval(() => {
-      return;
-      if (levelStringIndex > levelString.length - 1) return;
-
-      if (levelStringHTMLTextIndex <= levelStringHTMLTextEndIndex - 1) {
-        levelStringHTMLTextIndex = levelStringHTMLTextIndex + 1;
-
-        // On the first run for these particular brackets, there are no brackets/html elements to remove
-        if (!firstTime) {
-          // We remove the tags, if any
-          let indexToRemoveFrom = log.innerHTML.lastIndexOf(
-            "<",
-            log.innerHTML.length - 1 - endTag.length
-          );
-
-          let newStr = log.innerHTML.split("");
-          newStr.splice(
-            indexToRemoveFrom,
-            startTag.length + levelStringHTMLTextLength - 1 + endTag.length
-          );
-          newStr = newStr.join("");
-          log.innerHTML = newStr;
-        } else {
-          firstTime = false;
-        }
-        // We re-add the tags with the current text
-        log.innerHTML +=
-          startTag +
-          levelString.substring(
-            levelStringHTMLTextStartIndex,
-            levelStringHTMLTextIndex
-          ) +
-          endTag;
-      } else if (levelString.substr(levelStringIndex, 4) == "<br>") {
-        console.error(levelStringIndex);
-        console.error(log.innerHTML);
-        log.innerHTML += "<br>";
-        levelStringIndex = levelStringIndex + 4;
-      } else if (levelString[levelStringIndex] == "<") {
-        levelStringHTMLTextIndex = 0;
-        levelStringHTMLTextStartIndex = 0;
-        levelStringHTMLTextEndIndex = 0;
-        levelStringHTMLTextLength = 0;
-        startTag = "";
-        endTag = "";
-        firstTime = true;
-
-        // Find the end of start tag
-        let endOfStartTagIndex = levelString.indexOf(">", levelStringIndex);
-        startTag = levelString.substring(
-          levelStringIndex,
-          endOfStartTagIndex + 1
-        );
-        endTag = startTag.slice(0, 1) + "/" + startTag.slice(1);
-
-        levelStringHTMLTextIndex = levelStringHTMLTextStartIndex =
-          levelStringIndex + startTag.length;
-
-        // We find the second tag here and calculate the length of the HTML internal text
-        levelStringHTMLTextLength =
-          levelString.indexOf("<", levelStringHTMLTextIndex) -
-          levelStringHTMLTextIndex;
-
-        levelStringHTMLTextEndIndex =
-          levelStringHTMLTextIndex + levelStringHTMLTextLength;
-
-        // The below is the start of the next part of text
-        levelStringIndex =
-          levelString.indexOf(">", levelStringHTMLTextIndex) + 1;
-      } else {
-        // If no html string, then we just keep going as usual
-        log.innerHTML += levelString[levelStringIndex];
-        levelStringIndex++;
-      }
-    }, 25);
-  },
   methods: {
-    swapComponent: function(component) {
-      this.currentComponent = component;
+    nextComponent: function() {
+      if (this.currentComponent === "view-title")
+        this.currentComponent = "view-game";
     }
   }
 };
 </script>
-<style type="text/css">
+<style>
 @font-face {
   font-family: "Ringbearer";
   src: url("../assets/fonts/Ringbearer.ttf") format("truetype");

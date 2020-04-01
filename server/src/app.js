@@ -51,10 +51,15 @@ app.post("/actions", (req, res) => {
     var location_id = req.body.location_id;
     var type = req.body.type;
     var metadata = req.body.metadata;
+    var location_num = req.body.location_num;
+    var description = req.body.description;
+
     var new_action = new Action({
         location_id: location_id,
         type: type,
-        metadata: metadata
+        metadata: metadata,
+        location_num: location_num,
+        description: description
     });
 
     new_action.save(function(error) {
@@ -72,7 +77,7 @@ app.post("/actions", (req, res) => {
 app.get("/actions", (req, res) => {
     Action.find(
         {},
-        "type metadata location_id",
+        "type metadata location_id location_num description",
         { sort: { type: 1 } },
         function(error, actions) {
             if (error) {
@@ -89,43 +94,47 @@ app.get("/actions", (req, res) => {
 app.get("/action/:id", (req, res) => {
     var db = req.db;
 
-    Action.findById(req.params.id, "type metadata location_id", function(
-        error,
-        action
-    ) {
-        if (error) {
-            console.error(error);
+    Action.findById(
+        req.params.id,
+        "type metadata location_id location_num description",
+        function(error, action) {
+            if (error) {
+                console.error(error);
+            }
+            res.send(action);
         }
-        res.send(action);
-    });
+    );
 });
 
 // Update an action
 app.put("/actions/:id", (req, res) => {
     var db = req.db;
-    Action.findById(req.params.id, "type metadata location_id", function(
-        error,
-        action
-    ) {
-        if (error) {
-            console.error(error);
-        }
-
-        action.type = req.body.type;
-        action.metadata = req.body.metadata;
-        action.location_id = req.body.location_id;
-
-        console.error(action);
-
-        action.save(function(error) {
+    Action.findById(
+        req.params.id,
+        "type metadata location_id location_num description",
+        function(error, action) {
             if (error) {
-                console.log(error);
+                console.error(error);
             }
-            res.send({
-                success: true
+
+            action.type = req.body.type;
+            action.metadata = req.body.metadata;
+            action.location_id = req.body.location_id;
+            action.location_num = req.body.location_num;
+            action.description = req.body.description;
+
+            console.error(action);
+
+            action.save(function(error) {
+                if (error) {
+                    console.log(error);
+                }
+                res.send({
+                    success: true
+                });
             });
-        });
-    });
+        }
+    );
 });
 
 // Delete an action

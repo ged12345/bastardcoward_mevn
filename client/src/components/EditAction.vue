@@ -3,13 +3,42 @@
     <h1>Edit Action</h1>
     <div class="form">
       <div>
-        <input type="text" name="location_id" placeholder="LOCATION_ID" v-model="location_id" />
-      </div>
-      <div class="panel-body">
-        <acactiontype :initial_type="type" v-on:childToParent="onQueryUpdate"></acactiontype>
+        <input
+          type="text"
+          name="location_id"
+          placeholder="LOCATION_ID"
+          v-model="location_id"
+        />
       </div>
       <div>
-        <textarea rows="15" cols="15" placeholder="METADATA" v-model="metadata"></textarea>
+        <input
+          type="text"
+          name="location_num"
+          placeholder="LOCATION_NUM"
+          v-model="location_num"
+        />
+      </div>
+      <div class="panel-body">
+        <acactiontype
+          :initial_type="type"
+          v-on:childToParent="onQueryUpdate"
+        ></acactiontype>
+      </div>
+      <div>
+        <textarea
+          rows="15"
+          cols="15"
+          placeholder="METADATA"
+          v-model="metadata"
+        ></textarea>
+      </div>
+      <div>
+        <textarea
+          rows="15"
+          cols="15"
+          placeholder="DESCRIPTION"
+          v-model="description"
+        ></textarea>
       </div>
       <div>
         <button class="app_action_btn" @click="updateAction">Update</button>
@@ -26,8 +55,10 @@ export default {
   data() {
     return {
       location_id: "",
+      location_num: "",
       type: "",
-      metadata: ""
+      metadata: "",
+      description: ""
     };
   },
   mounted() {
@@ -39,15 +70,19 @@ export default {
         id: this.$route.params.id
       });
       this.location_id = response.data.location_id;
+      this.location_num = response.data.location_num;
       this.type = response.data.type;
       this.metadata = response.data.metadata;
+      this.description = response.data.description;
     },
     async updateAction() {
       await ActionsService.updateAction({
         id: this.$route.params.id,
         location_id: this.location_id,
+        location_num: this.location_num,
         type: this.type,
-        metadata: this.metadata
+        metadata: this.metadata,
+        description: this.description
       });
       this.$router.push({ name: "Actions" });
     },

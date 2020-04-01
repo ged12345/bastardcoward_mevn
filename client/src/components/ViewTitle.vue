@@ -24,17 +24,22 @@ export default {
   data() {
     return {
       showTitle: false,
-      showButton: true
+      showButton: true,
+      buttonClicked: false
     };
   },
   methods: {
     async clickToBegin() {
+      // Debounce clicking so this code doesn't run over-and-over again
+      if (this.buttonClicked == true) return;
+      this.buttonClicked = true;
+
       this.showButton = false;
       await new Promise(r => setTimeout(r, 3000));
 
       var audio = new Audio([require("../assets/media/drums.mp3")]);
       audio.volume = 0.9;
-      audio.play();
+      /*audio.play();
 
       this.addPreTitleImage1();
 
@@ -65,6 +70,9 @@ export default {
 
       await new Promise(r => setTimeout(r, 3000));
       document.body.classList.add("background-image-hidden");
+      await new Promise(r => setTimeout(r, 8000));*/
+      // Change to Game screen component
+      this.$emit("endTitles", "someValue");
     },
     addTitleText() {
       let h1Element = document.getElementById("type_text");
@@ -91,22 +99,22 @@ export default {
   }
 };
 </script>
-
 <style>
+#logo {
+  display: none !important;
+}
+
 body {
   background-color: rgba(255, 255, 255, 1);
   background-blend-mode: overlay;
   transition: background-color 4s ease;
   opacity: 1;
 }
-
+</style>
+<style>
 span {
   display: inline-block;
   vertical-align: middle;
-}
-
-#logo {
-  display: none;
 }
 
 #beginButton {
