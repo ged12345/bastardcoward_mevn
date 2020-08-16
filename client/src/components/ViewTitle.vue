@@ -39,38 +39,38 @@ export default {
 
       var audio = new Audio([require('../assets/media/drums.mp3')])
       audio.volume = 0.9
-      /* audio.play();
+      audio.play()
 
-      this.addPreTitleImage1();
+      this.addPreTitleImage1()
 
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(resolve => setTimeout(resolve, 2000))
 
-      document.body.classList.add("background-image-visible");
-      await new Promise(r => setTimeout(r, 7000));
-      this.showTitle = true;
-      await new Promise(r => setTimeout(r, 200));
-      this.addTitleText();
-      await new Promise(r => setTimeout(r, 6800));
-      this.showTitle = false;
-      document.body.classList.add("background-image-hidden");
-      document.body.classList.remove("background-image-visible");
+      document.body.classList.add('background-image-visible')
+      await new Promise(resolve => setTimeout(resolve, 7000))
+      this.showTitle = true
+      await new Promise(resolve => setTimeout(resolve, 200))
+      this.addTitleText()
+      await new Promise(resolve => setTimeout(resolve, 6800))
+      this.showTitle = false
+      document.body.classList.add('background-image-hidden')
+      document.body.classList.remove('background-image-visible')
 
-      await new Promise(r => setTimeout(r, 4000));
+      await new Promise(resolve => setTimeout(resolve, 4000))
 
-      await new Promise(r => setTimeout(r, 4000));
-      this.showTitle = true;
-      this.addPreTitleImage2();
-      document.body.classList.add("background-image-visible");
-      document.body.classList.remove("background-image-hidden");
-      await new Promise(r => setTimeout(r, 200));
-      this.addCreditsText();
-      await new Promise(r => setTimeout(r, 6800));
-      this.showTitle = false;
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise(resolve => setTimeout(resolve, 4000))
+      this.showTitle = true
+      this.addPreTitleImage2()
+      document.body.classList.add('background-image-visible')
+      document.body.classList.remove('background-image-hidden')
+      await new Promise(resolve => setTimeout(resolve, 200))
+      this.addCreditsText()
+      await new Promise(resolve => setTimeout(resolve, 6800))
+      this.showTitle = false
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
-      await new Promise(r => setTimeout(r, 3000));
-      document.body.classList.add("background-image-hidden");
-      await new Promise(r => setTimeout(r, 8000)); */
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      document.body.classList.add('background-image-hidden')
+      await new Promise(resolve => setTimeout(resolve, 8000))
       // Change to Game screen component
       this.$emit('endTitles', 'someValue')
     },
