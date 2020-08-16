@@ -3,27 +3,32 @@
 </template>
 
 <script>
-import ViewGame from "@/components/ViewGame";
-import ViewTitle from "@/components/ViewTitle";
+import ViewGame from '@/components/ViewGame'
+import ViewTitle from '@/components/ViewTitle'
 
 export default {
-  name: "GameScreen",
-  data() {
+  name: 'GameScreen',
+  data () {
     return {
-      currentComponent: "view-title"
-    };
+      currentComponent: 'view-title'
+    }
   },
   components: {
-    "view-title": ViewTitle,
-    "view-game": ViewGame
+    'view-title': ViewTitle,
+    'view-game': ViewGame
   },
   methods: {
-    nextComponent: function() {
-      if (this.currentComponent === "view-title")
-        this.currentComponent = "view-game";
+    nextComponent: function () {
+      if (this.currentComponent === 'view-title') { this.currentComponent = 'view-game' }
+    }
+  },
+  mounted () {
+    // If a parameter is passed, then we skip the beginning page
+    if (this.$route.params.id !== undefined) {
+      this.nextComponent()
     }
   }
-};
+}
 </script>
 <style>
 @font-face {

@@ -1,17 +1,17 @@
 <template>
   <div class="action_types">
-    <h1>Action Types</h1>
+    <h1>
+      Action Types
+      <router-link v-bind:to="{ name: 'NewActionType' }" class>(Add)</router-link>
+    </h1>
     <div v-if="action_types.length > 0" class="table-wrap">
-      <div>
-        <router-link v-bind:to="{ name: 'NewActionType' }" class>Add Action Type</router-link>
-      </div>
       <table>
         <tr>
           <td>Type</td>
           <td width="450">Description</td>
           <td width="100" align="center">Action</td>
         </tr>
-        <tr v-for="action_type in action_types">
+        <tr v-for="action_type in action_types" v-bind:key="action_type">
           <td>{{ action_type.type }}</td>
           <td>{{ action_type.description }}</td>
 
@@ -37,28 +37,28 @@
 </template>
 
 <script>
-import ActionsService from "@/services/ActionsService";
+import ActionsService from '@/services/ActionsService'
 export default {
-  name: "action_types",
-  data() {
+  name: 'action_types',
+  data () {
     return {
       action_types: []
-    };
+    }
   },
-  mounted() {
-    this.getActionTypes();
+  mounted () {
+    this.getActionTypes()
   },
   methods: {
-    async getActionTypes() {
-      const response = await ActionsService.fetchActionTypes();
-      this.action_types = response.data.action_types;
+    async getActionTypes () {
+      const response = await ActionsService.fetchActionTypes()
+      this.action_types = response.data.action_types
     },
-    async deleteActionType(id) {
-      await ActionsService.deleteActionType(id);
-      this.$router.push({ name: "ActionTypes" });
+    async deleteActionType (id) {
+      await ActionsService.deleteActionType(id)
+      this.$router.push({ name: 'ActionTypes' })
     }
   }
-};
+}
 </script>
 <style type="text/css">
 .table-wrap {
@@ -80,15 +80,15 @@ table tr:nth-child(odd) {
   background: #f2f2f2;
 }
 table tr:nth-child(1) {
-  background: #4d7ef7;
+  background-color: #333333;
   color: #fff;
 }
 a {
-  color: #4d7ef7;
+  color: #333333;
   text-decoration: none;
 }
 a.add_action_type_link {
-  background: #4d7ef7;
+  background-color: #333333;
   color: #fff;
   padding: 10px 80px;
   text-transform: uppercase;

@@ -19,43 +19,43 @@
 </template>
 
 <script>
-import ActionsService from "@/services/ActionsService";
-import ActionTypeAutocomplete from "./ActionTypeAutocomplete";
+import ActionsService from '@/services/ActionsService'
+import ActionTypeAutocomplete from './ActionTypeAutocomplete'
 export default {
-  name: "EditActionType",
-  data() {
+  name: 'EditActionType',
+  data () {
     return {
-      type: "",
-      description: ""
-    };
+      type: '',
+      description: ''
+    }
   },
-  mounted() {
-    this.getActionType();
+  mounted () {
+    this.getActionType()
   },
   methods: {
-    async getActionType() {
+    async getActionType () {
       const response = await ActionsService.getActionType({
         id: this.$route.params.id
-      });
-      this.type = response.data.type;
-      this.description = response.data.description;
+      })
+      this.type = response.data.type
+      this.description = response.data.description
     },
-    async updateActionType() {
+    async updateActionType () {
       await ActionsService.updateActionType({
         id: this.$route.params.id,
         type: this.type,
         description: this.description
-      });
-      this.$router.push({ name: "ActionTypes" });
+      })
+      this.$router.push({ name: 'ActionTypes' })
     },
-    onQueryUpdate(value) {
-      this.type = value;
+    onQueryUpdate (value) {
+      this.type = value
     }
   },
   components: {
     acactiontype: ActionTypeAutocomplete
   }
-};
+}
 </script>
 <style type="text/css">
 .form input,
@@ -70,7 +70,7 @@ export default {
   margin: 20px;
 }
 .app_action_type_btn {
-  background: #4d7ef7;
+  background-color: #333333;
   color: #fff;
   padding: 10px 80px;
   text-transform: uppercase;

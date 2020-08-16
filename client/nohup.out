@@ -1,0 +1,49 @@
+[00007f905d526010] main interface error: no suitable interface module
+[00007f905e1058e0] main libvlc error: interface '(null),none' initialization failed
+[00007f905e1058e0] main libvlc: Running vlc with the default interface. Use 'cvlc' to use vlc without interface.
+[00007f90628f7190] videotoolbox decoder: Using Video Toolbox to decode 'h264'
+[00007f90628f7190] videotoolbox decoder: vt cvpx chroma: 420v
+2020-04-19 23:42:21.708 VLC[6419:57315] Can't find app with identifier com.apple.iTunes
+2020-04-19 23:42:21.708 VLC[6419:57315] Can't find app with identifier com.spotify.client
+2020-04-19 23:42:21.719 VLC[6419:57315] Can't find app with identifier com.apple.iTunes
+2020-04-19 23:42:21.719 VLC[6419:57315] Can't find app with identifier com.spotify.client
+[00007f90628f7190] videotoolbox decoder: Raising max DPB to 3
+2020-04-19 23:43:44.249 VLC[6419:57315] Can't find app with identifier com.apple.iTunes
+2020-04-19 23:43:44.249 VLC[6419:57315] Can't find app with identifier com.spotify.client
+[00007f90628f7190] main decoder error: Timestamp conversion failed for 54766668: no reference clock
+[00007f90628f7190] main decoder error: Could not convert timestamp 0 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed (delay 1000000, buffering 100000, bound 9000000)
+[00007f90628f7190] main decoder error: Could not convert timestamp 5296921476 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed for 255666667: no reference clock
+[00007f90628f7190] main decoder error: Could not convert timestamp 0 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed for 329000001: no reference clock
+[00007f90628f7190] main decoder error: Could not convert timestamp 0 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed (delay 1000000, buffering 100000, bound 9000000)
+[00007f90628f7190] main decoder error: Could not convert timestamp 5318170852 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed for 505100001: no reference clock
+[00007f90628f7190] main decoder error: Could not convert timestamp 0 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed (delay 1000000, buffering 100000, bound 9000000)
+[00007f90628f7190] main decoder error: Could not convert timestamp 5347108016 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed (delay 1000000, buffering 100000, bound 9000000)
+[00007f90628f7190] main decoder error: Could not convert timestamp 5376816956 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed for 830833335: no reference clock
+[00007f90628f7190] main decoder error: Could not convert timestamp 0 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed (delay 1000000, buffering 100000, bound 9000000)
+[00007f90628f7190] main decoder error: Could not convert timestamp 5387307802 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed for 873333334: no reference clock
+[00007f90628f7190] main decoder error: Could not convert timestamp 0 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed (delay 1000000, buffering 100000, bound 9000000)
+[00007f90628f7190] main decoder error: Could not convert timestamp 5438295103 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed (delay 1000000, buffering 100000, bound 9000000)
+[00007f90628f7190] main decoder error: Could not convert timestamp 5470981118 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed (delay 1000000, buffering 100000, bound 9000000)
+[00007f90628f7190] main decoder error: Could not convert timestamp 5503457489 for videotoolbox
+[00007f90628f7190] main decoder error: Timestamp conversion failed (delay 1000000, buffering 100000, bound 9000000)
+[00007f90628f7190] main decoder error: Could not convert timestamp 5492543653 for videotoolbox
+[00007f90621f0c50] videotoolbox decoder: Using Video Toolbox to decode 'h264'
+2020-04-19 23:48:14.264 VLC[6419:57315] Can't find app with identifier com.apple.iTunes
+2020-04-19 23:48:14.264 VLC[6419:57315] Can't find app with identifier com.spotify.client
+[00007f90621f0c50] videotoolbox decoder: vt cvpx chroma: 420v
+[00007f90621f0c50] videotoolbox decoder: Raising max DPB to 3
+[00007f90621f0c50] main decoder error: Timestamp conversion failed (delay 1000000, buffering 100000, bound 9000000)
+[00007f90621f0c50] main decoder error: Could not convert timestamp 5541484872 for videotoolbox

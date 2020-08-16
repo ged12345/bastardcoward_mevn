@@ -16,25 +16,25 @@
 </template>
 
 <script>
-import ActionsService from "@/services/ActionsService";
+import ActionsService from '@/services/ActionsService'
 export default {
-  name: "NewActionType",
-  data() {
+  name: 'NewActionType',
+  data () {
     return {
-      type: "",
-      description: ""
-    };
+      type: '',
+      description: ''
+    }
   },
   methods: {
-    async addActionType() {
+    async addActionType () {
       await ActionsService.addActionType({
         type: this.type,
         description: this.description
-      });
-      this.$router.push({ name: "ActionTypes" });
+      })
+      this.$router.push({ name: 'ActionTypes' })
     }
   }
-};
+}
 </script>
 <style type="text/css">
 .form input,
@@ -49,7 +49,7 @@ export default {
   margin: 20px;
 }
 .app_action_type_btn {
-  background: #4d7ef7;
+  background-color: #333333;
   color: #fff;
   padding: 10px 80px;
   text-transform: uppercase;

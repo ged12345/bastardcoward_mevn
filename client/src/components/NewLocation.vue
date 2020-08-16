@@ -19,39 +19,38 @@
 </template>
 
 <script>
-import LocationsService from "@/services/LocationsService";
+import LocationsService from '@/services/LocationsService'
 export default {
-  name: "NewLocation",
-  data() {
+  name: 'NewLocation',
+  data () {
     return {
-      location_id: "",
-      title: "",
-      description: ""
-    };
+      location_id: '',
+      title: '',
+      description: ''
+    }
   },
-  mounted() {
-    this.getHighestLocationID();
+  mounted () {
+    this.getHighestLocationID()
   },
   methods: {
-    async getHighestLocationID() {
-      const response = await LocationsService.getHighestLocationID();
-      console.error(response);
+    async getHighestLocationID () {
+      const response = await LocationsService.getHighestLocationID()
       // Always returns at least one response?
       if (response.data.locations.length > 0) {
         this.location_id =
-          parseInt(response.data.locations[0].location_id, 10) + 1;
+          parseInt(response.data.locations[0].location_id, 10) + 1
       }
     },
-    async addLocation() {
+    async addLocation () {
       await LocationsService.addLocation({
         location_id: this.location_id,
         title: this.title,
         description: this.description
-      });
-      this.$router.push({ name: "Locations" });
+      })
+      this.$router.push({ name: 'Locations' })
     }
   }
-};
+}
 </script>
 <style type="text/css">
 .form input,
@@ -66,7 +65,7 @@ export default {
   margin: 20px;
 }
 .app_location_btn {
-  background: #4d7ef7;
+  background-color: #333333;
   color: #fff;
   padding: 10px 80px;
   text-transform: uppercase;

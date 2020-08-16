@@ -9,7 +9,7 @@
     />
     <div class="panel-footer" v-if="results.length">
       <ul class="list-group">
-        <li class="list-group-item no-bullet" v-for="result in results">
+        <li class="list-group-item no-bullet" v-for="result in results" v-bind:key="result">
           <a href="#" @click="clickType(result.type)">{{ result.type }}</a>
         </li>
       </ul>
@@ -17,39 +17,39 @@
   </div>
 </template>
 <script>
-import ActionsService from "@/services/ActionsService";
+import ActionsService from '@/services/ActionsService'
 export default {
-  name: "acactiontype",
+  name: 'acactiontype',
   props: {
     initial_type: String
   },
-  data() {
+  data () {
     return {
-      query: "",
+      query: '',
       results: []
-    };
+    }
   },
-  mounted() {
-    this.query = this.initial_type;
+  mounted () {
+    this.query = this.initial_type
     // Takes more time due to retrieving info, I think - or could be usage of props
-    setTimeout(() => (this.query = this.initial_type), 200);
+    setTimeout(() => (this.query = this.initial_type), 200)
   },
   methods: {
-    clickType(type) {
-      this.query = type;
-      this.results = [];
-      this.emitToParent();
+    clickType (type) {
+      this.query = type
+      this.results = []
+      this.emitToParent()
     },
-    emitToParent(event) {
-      this.$emit("childToParent", this.query);
+    emitToParent (event) {
+      this.$emit('childToParent', this.query)
     },
-    async autoComplete() {
-      this.results = [];
-      const response = await ActionsService.findActionType(this.query);
-      this.results = response.data;
+    async autoComplete () {
+      this.results = []
+      const response = await ActionsService.findActionType(this.query)
+      this.results = response.data
     }
   }
-};
+}
 </script>
 <style type="text/css">
 .no-bullet {

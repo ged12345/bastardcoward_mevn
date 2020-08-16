@@ -11,10 +11,10 @@ app.use(cors());
 app.listen(process.env.PORT || 8081);
 
 var mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/bastardcoward");
+mongoose.connect("mongodb://127.0.0.1:37017/bastardcoward");
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
-db.once("open", function(callback) {
+db.once("open", function (callback) {
     console.log("Connection Succeeded");
 });
 
@@ -22,6 +22,7 @@ var Action = require("../models/actions");
 var ActionType = require("../models/action_types");
 var Event = require("../models/events");
 var Location = require("../models/locations");
+var Monster = require("../models/monsters");
 
 // ACTIONS CRUD API
 
@@ -32,14 +33,14 @@ app.get("/actions/:id/location_id", (req, res) => {
 
     Action.find(
         { location_id: location_id },
-        "type metadata location_id",
-        { sort: { type: 1 } },
-        function(error, actions) {
+        "type metadata location_id location_num description",
+        { sort: { location_num: 1 } },
+        function (error, actions) {
             if (error) {
                 console.error(error);
             }
             res.send({
-                actions: actions
+                actions: actions,
             });
         }
     ).sort({ _id: -1 });
@@ -59,16 +60,16 @@ app.post("/actions", (req, res) => {
         type: type,
         metadata: metadata,
         location_num: location_num,
-        description: description
+        description: description,
     });
 
-    new_action.save(function(error) {
+    new_action.save(function (error) {
         if (error) {
             console.log(error);
         }
         res.send({
             success: true,
-            message: "Action saved successfully!"
+            message: "Action saved successfully!",
         });
     });
 });
@@ -79,12 +80,12 @@ app.get("/actions", (req, res) => {
         {},
         "type metadata location_id location_num description",
         { sort: { type: 1 } },
-        function(error, actions) {
+        function (error, actions) {
             if (error) {
                 console.error(error);
             }
             res.send({
-                actions: actions
+                actions: actions,
             });
         }
     ).sort({ _id: -1 });
@@ -97,7 +98,7 @@ app.get("/action/:id", (req, res) => {
     Action.findById(
         req.params.id,
         "type metadata location_id location_num description",
-        function(error, action) {
+        function (error, action) {
             if (error) {
                 console.error(error);
             }
@@ -112,7 +113,7 @@ app.put("/actions/:id", (req, res) => {
     Action.findById(
         req.params.id,
         "type metadata location_id location_num description",
-        function(error, action) {
+        function (error, action) {
             if (error) {
                 console.error(error);
             }
@@ -125,12 +126,12 @@ app.put("/actions/:id", (req, res) => {
 
             console.error(action);
 
-            action.save(function(error) {
+            action.save(function (error) {
                 if (error) {
                     console.log(error);
                 }
                 res.send({
-                    success: true
+                    success: true,
                 });
             });
         }
@@ -142,12 +143,12 @@ app.delete("/actions/:id", (req, res) => {
     var db = req.db;
     Action.remove(
         {
-            _id: req.params.id
+            _id: req.params.id,
         },
-        function(err, action) {
+        function (err, action) {
             if (err) res.send(err);
             res.send({
-                success: true
+                success: true,
             });
         }
     );
@@ -157,7 +158,7 @@ app.delete("/actions/:id", (req, res) => {
 
 // Find all action types
 app.get("/action_types", (req, res) => {
-    ActionType.find({}, "type description", { sort: { type: 1 } }, function(
+    ActionType.find({}, "type description", { sort: { type: 1 } }, function (
         error,
         action_types
     ) {
@@ -165,7 +166,7 @@ app.get("/action_types", (req, res) => {
             console.error(error);
         }
         res.send({
-            action_types: action_types
+            action_types: action_types,
         });
     }).sort({ _id: -1 });
 });
@@ -178,7 +179,7 @@ app.get("/action_types/:query", (req, res) => {
     ActionType.find(
         { type: { $regex: query, $options: "i" } },
         "type description",
-        function(error, action_type) {
+        function (error, action_type) {
             if (error) {
                 console.error(error);
             }
@@ -194,16 +195,16 @@ app.post("/action_types", (req, res) => {
     var description = req.body.description;
     var new_action_type = new ActionType({
         type: type,
-        description: description
+        description: description,
     });
 
-    new_action_type.save(function(error) {
+    new_action_type.save(function (error) {
         if (error) {
             console.log(error);
         }
         res.send({
             success: true,
-            message: "Action type saved successfully!"
+            message: "Action type saved successfully!",
         });
     });
 });
@@ -212,7 +213,7 @@ app.post("/action_types", (req, res) => {
 app.get("/action_type/:id", (req, res) => {
     var db = req.db;
 
-    ActionType.findById(req.params.id, "type description", function(
+    ActionType.findById(req.params.id, "type description", function (
         error,
         action
     ) {
@@ -226,7 +227,7 @@ app.get("/action_type/:id", (req, res) => {
 // Update an action
 app.put("/action_types/:id", (req, res) => {
     var db = req.db;
-    ActionType.findById(req.params.id, "type description", function(
+    ActionType.findById(req.params.id, "type description", function (
         error,
         action
     ) {
@@ -236,12 +237,12 @@ app.put("/action_types/:id", (req, res) => {
 
         action.type = req.body.type;
         action.description = req.body.description;
-        action.save(function(error) {
+        action.save(function (error) {
             if (error) {
                 console.log(error);
             }
             res.send({
-                success: true
+                success: true,
             });
         });
     });
@@ -252,12 +253,12 @@ app.delete("/action_types/:id", (req, res) => {
     var db = req.db;
     ActionType.remove(
         {
-            _id: req.params.id
+            _id: req.params.id,
         },
-        function(err, action) {
+        function (err, action) {
             if (err) res.send(err);
             res.send({
-                success: true
+                success: true,
             });
         }
     );
@@ -274,16 +275,16 @@ app.post("/locations", (req, res) => {
     var new_location = new Location({
         location_id: location_id,
         title: title,
-        description: description
+        description: description,
     });
 
-    new_location.save(function(error) {
+    new_location.save(function (error) {
         if (error) {
             console.log(error);
         }
         res.send({
             success: true,
-            message: "Location saved successfully!"
+            message: "Location saved successfully!",
         });
     });
 });
@@ -294,12 +295,12 @@ app.get("/locations", (req, res) => {
         {},
         "title description location_id",
         { sort: { location_id: 1 } },
-        function(error, locations) {
+        function (error, locations) {
             if (error) {
                 console.error(error);
             }
             res.send({
-                locations: locations
+                locations: locations,
             });
         }
     ).sort({ _id: -1 });
@@ -309,7 +310,7 @@ app.get("/locations", (req, res) => {
 app.get("/location/:id", (req, res) => {
     var db = req.db;
 
-    Location.findById(req.params.id, "title description location_id", function(
+    Location.findById(req.params.id, "title description location_id", function (
         error,
         location
     ) {
@@ -323,7 +324,7 @@ app.get("/location/:id", (req, res) => {
 // Update a location
 app.put("/locations/:id", (req, res) => {
     var db = req.db;
-    Location.findById(req.params.id, "title description location_id", function(
+    Location.findById(req.params.id, "title description location_id", function (
         error,
         location
     ) {
@@ -334,12 +335,12 @@ app.put("/locations/:id", (req, res) => {
         location.title = req.body.title;
         location.description = req.body.description;
         location.location_id = req.body.location_id;
-        location.save(function(error) {
+        location.save(function (error) {
             if (error) {
                 console.log(error);
             }
             res.send({
-                success: true
+                success: true,
             });
         });
     });
@@ -350,12 +351,12 @@ app.delete("/locations/:id", (req, res) => {
     var db = req.db;
     Location.remove(
         {
-            _id: req.params.id
+            _id: req.params.id,
         },
-        function(err, location) {
+        function (err, location) {
             if (err) res.send(err);
             res.send({
-                success: true
+                success: true,
             });
         }
     );
@@ -363,7 +364,7 @@ app.delete("/locations/:id", (req, res) => {
 
 // Get max location_id
 app.get("/locations/max_location_id/", (req, res) => {
-    Location.find({}, "location_id", { sort: { location_id: -1 } }, function(
+    Location.find({}, "location_id", { sort: { location_id: -1 } }, function (
         error,
         locations
     ) {
@@ -371,7 +372,7 @@ app.get("/locations/max_location_id/", (req, res) => {
             console.error(error);
         }
         res.send({
-            locations: locations
+            locations: locations,
         });
     });
 });
@@ -384,11 +385,218 @@ app.get("/locations/:query", (req, res) => {
     Location.find(
         { location_id: { $regex: query, $options: "i" } },
         "title description location_id",
-        function(error, location) {
+        function (error, location) {
             if (error) {
                 console.error(error);
             }
             res.send(location);
+        }
+    );
+});
+
+// MONSTER CRUD API
+
+// Add new monster
+app.post("/monsters", (req, res) => {
+    var db = req.db;
+    var name = req.body.name;
+    var damage_type = req.body.damage_type;
+    var health = req.body.health;
+    var magic = req.body.magic;
+    var description = req.body.description;
+    var new_monster = new Monster({
+        name: name,
+        damage_type: damage_type,
+        health: health,
+        magic: magic,
+        description: description,
+    });
+
+    new_monster.save(function (error) {
+        if (error) {
+            console.log(error);
+        }
+        res.send({
+            success: true,
+            message: "Monster saved successfully!",
+        });
+    });
+});
+
+// Fetch all monsters
+app.get("/monsters", (req, res) => {
+    Monster.find({}, "name damage_type health magic description", {}, function (
+        error,
+        monsters
+    ) {
+        if (error) {
+            console.error(error);
+        }
+        res.send({
+            monsters: monsters,
+        });
+    }).sort({ _id: -1 });
+});
+
+// Fetch single monster
+app.get("/monster/:id", (req, res) => {
+    var db = req.db;
+
+    Monster.findById(
+        req.params.id,
+        "name damage_type health magic description",
+        function (error, location) {
+            if (error) {
+                console.error(error);
+            }
+            res.send(location);
+        }
+    );
+});
+
+// Update a monster
+app.put("/monsters/:id", (req, res) => {
+    var db = req.db;
+    Monster.findById(
+        req.params.id,
+        "name damage_type health magic description",
+        function (error, monster) {
+            if (error) {
+                console.error(error);
+            }
+
+            monster.name = req.body.name;
+            monster.damage_type = req.body.damage_type;
+            monster.health = req.body.health;
+            monster.magic = req.body.magic;
+            monster.description = req.body.description;
+
+            monster.save(function (error) {
+                if (error) {
+                    console.log(error);
+                }
+                res.send({
+                    success: true,
+                });
+            });
+        }
+    );
+});
+
+// Delete a monster
+app.delete("/monsters/:id", (req, res) => {
+    var db = req.db;
+    Monster.remove(
+        {
+            _id: req.params.id,
+        },
+        function (err, monster) {
+            if (err) res.send(err);
+            res.send({
+                success: true,
+            });
+        }
+    );
+});
+
+// DAMAGE TYPE CRUD API
+
+// Add new damage type
+app.post("/damage_types", (req, res) => {
+    var db = req.db;
+    var name = req.body.name;
+    var damage = req.body.damage;
+    var modifier = req.body.modifier;
+    var description = req.body.description;
+    var new_damage_type = new DamageType({
+        name: name,
+        damage: damage,
+        modifier: modifier,
+        description: description,
+    });
+
+    new_damage_type.save(function (error) {
+        if (error) {
+            console.log(error);
+        }
+        res.send({
+            success: true,
+            message: "Damage type saved successfully!",
+        });
+    });
+});
+
+// Fetch all damage types
+app.get("/damage_types", (req, res) => {
+    DamageType.find({}, "name damage modifier description", {}, function (
+        error,
+        damage_types
+    ) {
+        if (error) {
+            console.error(error);
+        }
+        res.send({
+            damage_types: damage_types,
+        });
+    }).sort({ _id: -1 });
+});
+
+// Fetch single damage type
+app.get("/damage_type/:id", (req, res) => {
+    var db = req.db;
+
+    DamageType.findById(
+        req.params.id,
+        "name damage modifier description",
+        function (error, damage_type) {
+            if (error) {
+                console.error(error);
+            }
+            res.send(damage_type);
+        }
+    );
+});
+
+// Update a damage type
+app.put("/damage_types/:id", (req, res) => {
+    var db = req.db;
+    DamageType.findById(
+        req.params.id,
+        "name damage modifier description",
+        function (error, damage_type) {
+            if (error) {
+                console.error(error);
+            }
+
+            damage_type.name = req.body.name;
+            damage_type.damage = req.body.damage_type;
+            damage_type.modifier = req.body.modifier;
+            damage_type.description = req.body.description;
+
+            damage_type.save(function (error) {
+                if (error) {
+                    console.log(error);
+                }
+                res.send({
+                    success: true,
+                });
+            });
+        }
+    );
+});
+
+// Delete a damage type
+app.delete("/damage_types/:id", (req, res) => {
+    var db = req.db;
+    DamageType.remove(
+        {
+            _id: req.params.id,
+        },
+        function (err, damage_type) {
+            if (err) res.send(err);
+            res.send({
+                success: true,
+            });
         }
     );
 });

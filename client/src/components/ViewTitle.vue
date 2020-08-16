@@ -20,26 +20,26 @@
 
 <script>
 export default {
-  name: "ViewTitle",
-  data() {
+  name: 'ViewTitle',
+  data () {
     return {
       showTitle: false,
       showButton: true,
       buttonClicked: false
-    };
+    }
   },
   methods: {
-    async clickToBegin() {
+    async clickToBegin () {
       // Debounce clicking so this code doesn't run over-and-over again
-      if (this.buttonClicked == true) return;
-      this.buttonClicked = true;
+      if (this.buttonClicked === true) return
+      this.buttonClicked = true
 
-      this.showButton = false;
-      await new Promise(r => setTimeout(r, 3000));
+      this.showButton = false
+      await new Promise(resolve => setTimeout(resolve, 3000))
 
-      var audio = new Audio([require("../assets/media/drums.mp3")]);
-      audio.volume = 0.9;
-      /*audio.play();
+      var audio = new Audio([require('../assets/media/drums.mp3')])
+      audio.volume = 0.9
+      /* audio.play();
 
       this.addPreTitleImage1();
 
@@ -70,34 +70,34 @@ export default {
 
       await new Promise(r => setTimeout(r, 3000));
       document.body.classList.add("background-image-hidden");
-      await new Promise(r => setTimeout(r, 8000));*/
+      await new Promise(r => setTimeout(r, 8000)); */
       // Change to Game screen component
-      this.$emit("endTitles", "someValue");
+      this.$emit('endTitles', 'someValue')
     },
-    addTitleText() {
-      let h1Element = document.getElementById("type_text");
+    addTitleText () {
+      let h1Element = document.getElementById('type_text')
       h1Element.innerHTML =
-        "TextQuest<br />#1<br /><br />Heart <br />Of The <br />Bastard <br />Coward";
+        'TextQuest<br />#1<br /><br />Heart <br />Of The <br />Bastard <br />Coward'
     },
-    addPreTitleImage1() {
-      let imageLocation = require("../assets/img/title_background1.jpg");
-      //document.body.style.backgroundColor = "rgba(255, 255, 255, 1.0)";
-      document.body.style.backgroundImage = `url(${imageLocation})`;
-      document.body.style.backgroundRepeat = "no-repeat";
-      document.body.style.backgroundPositionX = "center";
-      document.body.style.backgroundPositionY = "-75%";
-      document.body.style.backgroundSize = "110% 700%";
+    addPreTitleImage1 () {
+      let imageLocation = require('../assets/img/title_background1.jpg')
+      // document.body.style.backgroundColor = "rgba(255, 255, 255, 1.0)";
+      document.body.style.backgroundImage = `url(${imageLocation})`
+      document.body.style.backgroundRepeat = 'no-repeat'
+      document.body.style.backgroundPositionX = 'center'
+      document.body.style.backgroundPositionY = '-75%'
+      document.body.style.backgroundSize = '110% 700%'
     },
-    addPreTitleImage2() {
-      let imageLocation = require("../assets/img/title_background2.jpg");
-      document.body.style.backgroundImage = `url(${imageLocation})`;
+    addPreTitleImage2 () {
+      let imageLocation = require('../assets/img/title_background2.jpg')
+      document.body.style.backgroundImage = `url(${imageLocation})`
     },
-    addCreditsText() {
-      let h1Element = document.getElementById("type_text");
-      h1Element.innerHTML = "Composed by <br />Robert Deskoski";
+    addCreditsText () {
+      let h1Element = document.getElementById('type_text')
+      h1Element.innerHTML = 'Composed by <br />Robert Deskoski'
     }
   }
-};
+}
 </script>
 <style>
 #logo {

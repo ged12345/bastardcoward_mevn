@@ -3,7 +3,9 @@
     <h1>Posts</h1>
     <div v-if="posts.length > 0" class="table-wrap">
       <div>
-        <router-link v-bind:to="{ name: 'NewPost' }" class>Add Post</router-link>
+        <router-link v-bind:to="{ name: 'NewPost' }" class
+          >Add Post</router-link
+        >
       </div>
       <table>
         <tr>
@@ -15,7 +17,10 @@
           <td>{{ post.title }}</td>
           <td>{{ post.description }}</td>
           <td align="center">
-            <router-link v-bind:to="{ name: 'EditPost', params: { id: post._id } }">Edit</router-link>|
+            <router-link
+              v-bind:to="{ name: 'EditPost', params: { id: post._id } }"
+              >Edit</router-link
+            >|
             <a href="#" @click="deletePost(post._id)">Delete</a>
           </td>
         </tr>
@@ -25,34 +30,36 @@
       There are no posts.. Lets add one now
       <br />
       <br />
-      <router-link v-bind:to="{ name: 'NewPost' }" class="add_post_link">Add Post</router-link>
+      <router-link v-bind:to="{ name: 'NewPost' }" class="add_post_link"
+        >Add Post</router-link
+      >
     </div>
   </div>
 </template>
 
 <script>
-import PostsService from "@/services/PostsService";
+import PostsService from '@/services/PostsService'
 export default {
-  name: "posts",
-  data() {
+  name: 'posts',
+  data () {
     return {
       posts: []
-    };
+    }
   },
-  mounted() {
-    this.getPosts();
+  mounted () {
+    this.getPosts()
   },
   methods: {
-    async getPosts() {
-      const response = await PostsService.fetchPosts();
-      this.posts = response.data.posts;
+    async getPosts () {
+      const response = await PostsService.fetchPosts()
+      this.posts = response.data.posts
     },
-    async deletePost(id) {
-      await PostsService.deletePost(id);
-      this.$router.push({ name: "Posts" });
+    async deletePost (id) {
+      await PostsService.deletePost(id)
+      this.$router.push({ name: 'Posts' })
     }
   }
-};
+}
 </script>
 <style type="text/css">
 .table-wrap {
