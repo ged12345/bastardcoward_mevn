@@ -19,58 +19,83 @@
 </template>
 
 <script>
+import getSoundandFadeAudio from './../assets/js/fade'
+
 export default {
   name: 'ViewTitle',
   data () {
     return {
       showTitle: false,
       showButton: true,
-      buttonClicked: false
+      buttonClicked: false,
+      clearTimeoutID: 0,
+      audioPlayer: null
     }
   },
   methods: {
+    async clickToCancelTitle () {
+      if (this.clearTimeoutID !== 0) {
+        // Cancel the current timeOut
+        clearTimeout(this.clearTimeoutId)
+
+        // this.audioPlayer.pause()
+        if (this.audioPlayer !== null) {
+          getSoundandFadeAudio(this.audioPlayer)
+        }
+
+        // Move to the endTitles state
+        this.$emit('endTitles', 'someValue')
+      }
+    },
+    async sleepTimeout (timeInMS) {
+      await new Promise(resolve => (this.clearTimeoutID = setTimeout(resolve, timeInMS)))
+    },
     async clickToBegin () {
       // Debounce clicking so this code doesn't run over-and-over again
       if (this.buttonClicked === true) return
       this.buttonClicked = true
 
       this.showButton = false
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      await this.sleepTimeout(3000)
 
-      var audio = new Audio([require('../assets/media/drums.mp3')])
-      audio.volume = 0.9
-      audio.play()
+      this.audioPlayer = new Audio([require('../assets/media/drums.mp3')])
+      this.audioPlayer.volume = 0.9
+      this.audioPlayer.play()
+
+      // Manually grab the body element to add click handler to
+      document.body.addEventListener('click', () => this.clickToCancelTitle())
 
       this.addPreTitleImage1()
 
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
+      await this.sleepTimeout(2000)
       document.body.classList.add('background-image-visible')
-      await new Promise(resolve => setTimeout(resolve, 7000))
+      await this.sleepTimeout(7000)
       this.showTitle = true
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await this.sleepTimeout(200)
       this.addTitleText()
-      await new Promise(resolve => setTimeout(resolve, 6800))
+      await this.sleepTimeout(6800)
       this.showTitle = false
       document.body.classList.add('background-image-hidden')
       document.body.classList.remove('background-image-visible')
 
-      await new Promise(resolve => setTimeout(resolve, 4000))
+      await this.sleepTimeout(4000)
 
-      await new Promise(resolve => setTimeout(resolve, 4000))
+      await this.sleepTimeout(4000)
       this.showTitle = true
       this.addPreTitleImage2()
       document.body.classList.add('background-image-visible')
       document.body.classList.remove('background-image-hidden')
-      await new Promise(resolve => setTimeout(resolve, 200))
+      await this.sleepTimeout(200)
       this.addCreditsText()
-      await new Promise(resolve => setTimeout(resolve, 6800))
+      await this.sleepTimeout(6800)
       this.showTitle = false
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await this.sleepTimeout(1000)
 
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      await this.sleepTimeout(3000)
       document.body.classList.add('background-image-hidden')
-      await new Promise(resolve => setTimeout(resolve, 8000))
+      await this.sleepTimeout(8000)
+
+      document.body.removeEventListener('click', () => this.clickToCancelTitle())
       // Change to Game screen component
       this.$emit('endTitles', 'someValue')
     },
