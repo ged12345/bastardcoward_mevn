@@ -1,5 +1,6 @@
 <template>
   <div class="actions">
+    <overviewmenu></overviewmenu>
     <h1>Add Action</h1>
     <div class="form">
       <div class="panel-body">
@@ -43,6 +44,7 @@
 </template>
 
 <script>
+import OverviewMenu from '@/components/OverviewMenu'
 import ActionsService from '@/services/ActionsService'
 import ActionTypeAutocomplete from './ActionTypeAutocomplete'
 import LocationIDAutocomplete from './LocationIDAutocomplete'
@@ -78,7 +80,8 @@ export default {
   },
   components: {
     acactiontype: ActionTypeAutocomplete,
-    aclocationid: LocationIDAutocomplete
+    aclocationid: LocationIDAutocomplete,
+    overviewmenu: OverviewMenu
   }
 }
 </script>

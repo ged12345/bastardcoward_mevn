@@ -37,8 +37,8 @@ export default {
       const response = await ActionsService.getActionType({
         id: this.$route.params.id
       })
-      this.type = response.data.type
-      this.description = response.data.description
+      this.type = response.data.game_data.type
+      this.description = response.data.game_data.description
     },
     async updateActionType () {
       await ActionsService.updateActionType({

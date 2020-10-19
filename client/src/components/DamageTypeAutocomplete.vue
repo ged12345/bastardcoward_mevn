@@ -2,30 +2,31 @@
   <div>
     <input
       type="text"
-      placeholder="ACTION TYPE"
+      placeholder="DAMAGE_TYPE"
       v-model="query"
       v-on:keyup="autoComplete(); emitToParent();"
       class="form-control"
     />
     <div class="panel-footer" v-if="results.length">
       <ul class="list-group">
-        <li class="list-group-item no-bullet" v-for="result in results" v-bind:key="result">
-          <a href="#" @click="clickType(result.type)">{{ result.type }}</a>
+        <li class="list-group-item no-bullet" v-for="result in results" v-bind:key="result.name">
+          <a href="#" @click="clickName(result.name)">{{ result.name }}</a>
         </li>
       </ul>
     </div>
   </div>
 </template>
 <script>
-import ActionsService from '@/services/ActionsService'
+import DamageTypesService from '@/services/DamageTypesService'
 export default {
-  name: 'acactiontype',
+  name: 'acdamagetype',
   props: {
     initial_type: String
   },
   data () {
     return {
       query: '',
+      lastQuery: '',
       results: []
     }
   },
@@ -35,8 +36,8 @@ export default {
     setTimeout(() => (this.query = this.initial_type), 200)
   },
   methods: {
-    clickType (type) {
-      this.query = type
+    clickName (name) {
+      this.query = this.query.substring(0, this.query.length - this.lastQuery.length - 1).trim() + ' ' + name
       this.results = []
       this.emitToParent()
     },
@@ -45,8 +46,12 @@ export default {
     },
     async autoComplete () {
       this.results = []
-      const response = await ActionsService.findActionType(this.query)
+      this.lastQuery = this.query.split(',')[this.query.split(',').length - 1].trim()
+      console.log(this.lastQuery)
+      const response = await DamageTypesService.findDamageType(this.lastQuery)
+      console.log(response)
       this.results = response.data.game_data
+      console.log(this.results)
     }
   }
 }

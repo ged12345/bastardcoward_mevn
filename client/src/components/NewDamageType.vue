@@ -1,5 +1,6 @@
 <template>
   <div class="damage_types">
+    <overviewmenu></overviewmenu>
     <h1>Add Damage Type</h1>
     <div class="form">
       <div>
@@ -22,6 +23,7 @@
 </template>
 
 <script>
+import OverviewMenu from '@/components/OverviewMenu'
 import DamageTypesService from '@/services/DamageTypesService'
 export default {
   name: 'NewDamageType',
@@ -38,11 +40,14 @@ export default {
       await DamageTypesService.addDamageType({
         name: this.name,
         damage: this.damage,
-        health: this.health,
+        modifier: this.modifier,
         description: this.description
       })
       this.$router.push({ name: 'DamageTypes' })
     }
+  },
+  components: {
+    overviewmenu: OverviewMenu
   }
 }
 </script>

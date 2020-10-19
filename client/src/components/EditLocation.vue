@@ -62,9 +62,9 @@ export default {
       const response = await LocationsService.getLocation({
         id: this.$route.params.id
       })
-      this.location_id = response.data.location_id
-      this.description = response.data.description
-      this.title = response.data.title
+      this.location_id = response.data.game_data.location_id
+      this.description = response.data.game_data.description
+      this.title = response.data.game_data.title
 
       this.getActionsForLocationID(this.location_id)
     },

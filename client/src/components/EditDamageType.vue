@@ -42,10 +42,10 @@ export default {
       const response = await DamageTypesService.getDamageType({
         id: this.$route.params.id
       })
-      this.name = response.data.name
-      this.damage = response.data.damage
-      this.modifier = response.data.modifier
-      this.description = response.data.description
+      this.name = response.data.game_data.name
+      this.damage = response.data.game_data.damage
+      this.modifier = response.data.game_data.modifier
+      this.description = response.data.game_data.description
     },
     async updateDamageType () {
       await DamageTypesService.updateDamageType({

@@ -1,5 +1,6 @@
 <template>
   <div class="posts">
+    <overviewmenu></overviewmenu>
     <h1>Add Post</h1>
     <div class="form">
       <div>
@@ -16,6 +17,7 @@
 </template>
 
 <script>
+import OverviewMenu from '@/components/OverviewMenu'
 import PostsService from '@/services/PostsService'
 export default {
   name: 'NewPost',
@@ -33,6 +35,9 @@ export default {
       })
       this.$router.push({ name: 'Posts' })
     }
+  },
+  components: {
+    overviewmenu: OverviewMenu
   }
 }
 </script>

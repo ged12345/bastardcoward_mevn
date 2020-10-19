@@ -1,23 +1,29 @@
-import Api from '@/services/Api'
+/* eslint-disable */
+
+import Api from "@/services/Api";
 
 export default {
-  fetchMonsters () {
-    return Api().get('monsters')
+  fetchMonsters() {
+    return Api().get("monsters");
   },
 
-  addMonster (params) {
-    return Api().post('monsters', params)
+  addMonster(params) {
+    return Api().post("monsters", params);
   },
 
-  updateMonster (params) {
-    return Api().put('monsters/' + params.id, params)
+  updateMonster(params) {
+    return Api().put("monsters/" + params.id, params);
   },
 
-  getMonster (params) {
-    return Api().get('monster/' + params.id)
+  getMonster(params) {
+    return Api().get("monster/" + params.id);
   },
 
-  deleteMonster (id) {
-    return Api().delete('monsters/' + id)
+  deleteMonster(id) {
+    return Api().delete("monsters/" + id);
+  },
+
+  findMonster(name) {
+    return Api().get("monsters/" + name);
   }
-}
+};

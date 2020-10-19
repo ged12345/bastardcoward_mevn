@@ -23,6 +23,7 @@ var ActionType = require("../models/action_types");
 var Event = require("../models/events");
 var Location = require("../models/locations");
 var Monster = require("../models/monsters");
+var DamageType = require("../models/damage_types");
 
 // ACTIONS CRUD API
 
@@ -40,7 +41,7 @@ app.get("/actions/:id/location_id", (req, res) => {
                 console.error(error);
             }
             res.send({
-                actions: actions,
+                game_data: actions,
             });
         }
     ).sort({ _id: -1 });
@@ -85,7 +86,7 @@ app.get("/actions", (req, res) => {
                 console.error(error);
             }
             res.send({
-                actions: actions,
+                game_data: actions,
             });
         }
     ).sort({ _id: -1 });
@@ -102,7 +103,9 @@ app.get("/action/:id", (req, res) => {
             if (error) {
                 console.error(error);
             }
-            res.send(action);
+            res.send({
+                game_data: action,
+            });
         }
     );
 });
@@ -166,7 +169,7 @@ app.get("/action_types", (req, res) => {
             console.error(error);
         }
         res.send({
-            action_types: action_types,
+            game_data: action_types,
         });
     }).sort({ _id: -1 });
 });
@@ -183,7 +186,9 @@ app.get("/action_types/:query", (req, res) => {
             if (error) {
                 console.error(error);
             }
-            res.send(action_type);
+            res.send({
+                game_data: action_type,
+            });
         }
     );
 });
@@ -220,7 +225,9 @@ app.get("/action_type/:id", (req, res) => {
         if (error) {
             console.error(error);
         }
-        res.send(action);
+        res.send({
+            game_data: action,
+        });
     });
 });
 
@@ -300,7 +307,7 @@ app.get("/locations", (req, res) => {
                 console.error(error);
             }
             res.send({
-                locations: locations,
+                game_data: locations,
             });
         }
     ).sort({ _id: -1 });
@@ -317,7 +324,9 @@ app.get("/location/:id", (req, res) => {
         if (error) {
             console.error(error);
         }
-        res.send(location);
+        res.send({
+            game_data: location,
+        });
     });
 });
 
@@ -372,7 +381,7 @@ app.get("/locations/max_location_id/", (req, res) => {
             console.error(error);
         }
         res.send({
-            locations: locations,
+            game_data: locations,
         });
     });
 });
@@ -389,7 +398,9 @@ app.get("/locations/:query", (req, res) => {
             if (error) {
                 console.error(error);
             }
-            res.send(location);
+            res.send({
+                game_data: location,
+            });
         }
     );
 });
@@ -400,13 +411,13 @@ app.get("/locations/:query", (req, res) => {
 app.post("/monsters", (req, res) => {
     var db = req.db;
     var name = req.body.name;
-    var damage_type = req.body.damage_type;
+    var damage_types = req.body.damage_types;
     var health = req.body.health;
     var magic = req.body.magic;
     var description = req.body.description;
     var new_monster = new Monster({
         name: name,
-        damage_type: damage_type,
+        damage_types: damage_types,
         health: health,
         magic: magic,
         description: description,
@@ -425,17 +436,19 @@ app.post("/monsters", (req, res) => {
 
 // Fetch all monsters
 app.get("/monsters", (req, res) => {
-    Monster.find({}, "name damage_type health magic description", {}, function (
-        error,
-        monsters
-    ) {
-        if (error) {
-            console.error(error);
+    Monster.find(
+        {},
+        "name damage_types health magic description",
+        {},
+        function (error, monsters) {
+            if (error) {
+                console.error(error);
+            }
+            res.send({
+                game_data: monsters,
+            });
         }
-        res.send({
-            monsters: monsters,
-        });
-    }).sort({ _id: -1 });
+    ).sort({ _id: -1 });
 });
 
 // Fetch single monster
@@ -444,12 +457,14 @@ app.get("/monster/:id", (req, res) => {
 
     Monster.findById(
         req.params.id,
-        "name damage_type health magic description",
+        "name damage_types health magic description",
         function (error, location) {
             if (error) {
                 console.error(error);
             }
-            res.send(location);
+            res.send({
+                game_data: location,
+            });
         }
     );
 });
@@ -459,14 +474,13 @@ app.put("/monsters/:id", (req, res) => {
     var db = req.db;
     Monster.findById(
         req.params.id,
-        "name damage_type health magic description",
+        "name damage_types health magic description",
         function (error, monster) {
             if (error) {
                 console.error(error);
             }
-
             monster.name = req.body.name;
-            monster.damage_type = req.body.damage_type;
+            monster.damage_types = req.body.damage_types;
             monster.health = req.body.health;
             monster.magic = req.body.magic;
             monster.description = req.body.description;
@@ -495,6 +509,22 @@ app.delete("/monsters/:id", (req, res) => {
             res.send({
                 success: true,
             });
+        }
+    );
+});
+
+// Find action type by type name
+app.get("/monsters/:name", (req, res) => {
+    var db = req.db;
+    var name = req.params.name;
+    Monster.find(
+        { name: { $regex: name, $options: "i" } },
+        "name damage_types health magic description",
+        function (error, monster) {
+            if (error) {
+                console.error(error);
+            }
+            res.send({ game_data: monster });
         }
     );
 });
@@ -536,7 +566,7 @@ app.get("/damage_types", (req, res) => {
             console.error(error);
         }
         res.send({
-            damage_types: damage_types,
+            game_data: damage_types,
         });
     }).sort({ _id: -1 });
 });
@@ -552,7 +582,9 @@ app.get("/damage_type/:id", (req, res) => {
             if (error) {
                 console.error(error);
             }
-            res.send(damage_type);
+            res.send({
+                game_data: damage_type,
+            });
         }
     );
 });
@@ -569,7 +601,7 @@ app.put("/damage_types/:id", (req, res) => {
             }
 
             damage_type.name = req.body.name;
-            damage_type.damage = req.body.damage_type;
+            damage_type.damage = req.body.damage;
             damage_type.modifier = req.body.modifier;
             damage_type.description = req.body.description;
 
@@ -596,6 +628,25 @@ app.delete("/damage_types/:id", (req, res) => {
             if (err) res.send(err);
             res.send({
                 success: true,
+            });
+        }
+    );
+});
+
+// Find damage type by name
+app.get("/damage_types/:query", (req, res) => {
+    var db = req.db;
+    var query = req.params.query;
+
+    DamageType.find(
+        { name: { $regex: query, $options: "i" } },
+        "name damage modifier description",
+        function (error, damage_type) {
+            if (error) {
+                console.error(error);
+            }
+            res.send({
+                game_data: damage_type,
             });
         }
     );

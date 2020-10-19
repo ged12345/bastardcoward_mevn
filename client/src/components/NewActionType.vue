@@ -1,5 +1,6 @@
 <template>
   <div class="action_types">
+    <overviewmenu></overviewmenu>
     <h1>Add Action Type</h1>
     <div class="form">
       <div>
@@ -17,6 +18,7 @@
 
 <script>
 import ActionsService from '@/services/ActionsService'
+import OverviewMenu from '@/components/OverviewMenu'
 export default {
   name: 'NewActionType',
   data () {
@@ -33,6 +35,9 @@ export default {
       })
       this.$router.push({ name: 'ActionTypes' })
     }
+  },
+  components: {
+    overviewmenu: OverviewMenu
   }
 }
 </script>

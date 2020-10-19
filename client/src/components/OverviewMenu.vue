@@ -1,7 +1,7 @@
 <template>
   <div class="overview-menu">
     <ul>
-      <li class="nav-item" v-for="route in routes" v-bind:key="route">
+      <li class="nav-item" v-for="route in routes" v-bind:key="route.fullPath">
         <router-link :to="route.path" class="nav-link" active-class="active">{{ route.title }}</router-link>
       </li>
     </ul>

@@ -14,7 +14,7 @@
           <td width="250">Description</td>
           <td width="100" align="center">Action</td>
         </tr>
-        <tr v-for="action in actions" v-bind:key="action">
+        <tr v-for="action in actions" v-bind:key="action.location_num">
           <td>{{ action.location_id }}</td>
           <td>{{ action.location_num }}</td>
           <td>{{ action.type }}</td>
@@ -52,7 +52,7 @@ export default {
   methods: {
     async getActions () {
       const response = await ActionsService.fetchActions()
-      this.actions = response.data.actions
+      this.actions = response.data.game_data
     },
     async deleteAction (id) {
       await ActionsService.deleteAction(id)

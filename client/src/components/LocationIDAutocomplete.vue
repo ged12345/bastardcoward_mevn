@@ -53,7 +53,7 @@ export default {
     async autoComplete () {
       this.results = []
       const response = await LocationsService.findLocation(this.query)
-      this.results = response.data
+      this.results = response.data.game_data
     }
   }
 }

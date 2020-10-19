@@ -2,7 +2,7 @@
   <div class="damage_types">
     <h1>
       Damage Types
-      <router-link v-bind:to="{ name: 'NewDamageTypes' }" class
+      <router-link v-bind:to="{ name: 'NewDamageType' }" class
         >(Add)</router-link
       >
     </h1>
@@ -15,7 +15,7 @@
           <td width="40">Modifier</td>
           <td width="100" align="center">Damage Types</td>
         </tr>
-        <tr v-for="damage_type in damage_types" v-bind:key="damage_type">
+        <tr v-for="damage_type in damage_types" v-bind:key="damage_type.name">
           <td>{{ damage_type.name }}</td>
           <td>{{ damage_type.description }}</td>
           <td>{{ damage_type.damage }}</td>
@@ -39,7 +39,7 @@
       <br />
       <br />
       <router-link
-        v-bind:to="{ name: 'NewDamageTypes' }"
+        v-bind:to="{ name: 'NewDamageType' }"
         class="add_damage_type_link"
         >Add Damage Type</router-link
       >
@@ -62,7 +62,7 @@ export default {
   methods: {
     async getDamageTypes () {
       const response = await DamageTypesService.fetchDamageTypes()
-      this.damage_types = response.data.damage_types
+      this.damage_types = response.data.game_data
     },
     async deleteDamageType (id) {
       await DamageTypesService.deleteDamageType(id)

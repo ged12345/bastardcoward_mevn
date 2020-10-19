@@ -12,7 +12,7 @@
           <td width="450">Description</td>
           <td width="100" align="center">Location</td>
         </tr>
-        <tr v-for="location in locations" v-bind:key="location">
+        <tr v-for="location in locations" v-bind:key="location.location_id">
           <td>{{ location.location_id }}</td>
           <td>{{ location.title }}</td>
           <td>{{ location.description }}</td>
@@ -48,7 +48,7 @@ export default {
   methods: {
     async getLocations () {
       const response = await LocationsService.fetchLocations()
-      this.locations = response.data.locations
+      this.locations = response.data.game_data
     },
     async deleteLocation (id) {
       await LocationsService.deleteLocation(id)

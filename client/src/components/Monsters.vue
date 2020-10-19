@@ -2,7 +2,7 @@
   <div class="monsters">
     <h1>
       Monsters
-      <router-link v-bind:to="{ name: 'NewMonsters' }" class>(Add)</router-link>
+      <router-link v-bind:to="{ name: 'NewMonster' }" class>(Add)</router-link>
     </h1>
     <div v-if="monsters.length > 0" class="table-wrap">
       <table>
@@ -11,15 +11,15 @@
           <td width="250">Description</td>
           <td width="40">Health</td>
           <td width="40">Magic</td>
-          <td width="400">Damage Type</td>
+          <td width="400">Damage Types</td>
           <td width="100" align="center">Monster</td>
         </tr>
-        <tr v-for="monster in monsters" v-bind:key="monster">
+        <tr v-for="monster in monsters" v-bind:key="monster.name">
           <td>{{ monster.name }}</td>
           <td>{{ monster.description }}</td>
           <td>{{ monster.health }}</td>
           <td>{{ monster.magic }}</td>
-          <td>{{ monster.damage_type }}</td>
+          <td>{{ monster.damage_types }}</td>
 
           <td align="center">
             <router-link
@@ -57,7 +57,8 @@ export default {
   methods: {
     async getMonsters () {
       const response = await MonstersService.fetchMonsters()
-      this.monsters = response.data.monsters
+      console.log(response)
+      this.monsters = response.data.game_data
     },
     async deleteMonster (id) {
       await MonstersService.deleteMonster(id)

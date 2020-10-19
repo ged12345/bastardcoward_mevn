@@ -33,8 +33,8 @@ export default {
       const response = await PostsService.getPost({
         id: this.$route.params.id
       })
-      this.title = response.data.title
-      this.description = response.data.description
+      this.title = response.data.game_data.title
+      this.description = response.data.game_data.description
     },
     async updatePost () {
       await PostsService.updatePost({

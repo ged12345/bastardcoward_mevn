@@ -47,11 +47,11 @@ export default {
       const response = await ActionsService.getAction({
         id: this.$route.params.id
       })
-      this.location_id = response.data.location_id
-      this.location_num = response.data.location_num
-      this.type = response.data.type
-      this.metadata = response.data.metadata
-      this.description = response.data.description
+      this.location_id = response.data.game_data.location_id
+      this.location_num = response.data.game_data.location_num
+      this.type = response.data.game_data.type
+      this.metadata = response.data.game_data.metadata
+      this.description = response.data.game_data.description
     },
     async updateAction () {
       await ActionsService.updateAction({

@@ -1,5 +1,6 @@
 <template>
   <div class="monsters">
+    <overviewmenu></overviewmenu>
     <h1>Add Monster</h1>
     <div class="form">
       <div>
@@ -14,8 +15,8 @@
       <div>
         <input type="text" name="magic" placeholder="MAGIC" v-model="magic" />
       </div>
-      <div>
-        <input type="text" name="damage_type" placeholder="DAMAGE_TYPE" v-model="damage_type" />
+      <div class="panel-body">
+        <acdamagetype v-on:childToParent="onQueryUpdate"></acdamagetype>
       </div>
       <div>
         <button class="app_monster_btn" @click="addMonster">Add</button>
@@ -25,7 +26,9 @@
 </template>
 
 <script>
+import OverviewMenu from '@/components/OverviewMenu'
 import MonstersService from '@/services/MonstersService'
+import DamageTypeAutocomplete from '@/components/DamageTypeAutocomplete'
 export default {
   name: 'NewMonster',
   data () {
@@ -41,13 +44,20 @@ export default {
     async addMonster () {
       await MonstersService.addMonster({
         name: this.name,
-        damage_type: this.damage_type,
+        damage_types: this.damage_types,
         health: this.health,
         magic: this.magic,
         description: this.description
       })
       this.$router.push({ name: 'Monsters' })
+    },
+    onQueryUpdate (value) {
+      this.damage_types = value
     }
+  },
+  components: {
+    overviewmenu: OverviewMenu,
+    acdamagetype: DamageTypeAutocomplete
   }
 }
 </script>

@@ -52,7 +52,7 @@ export default {
   methods: {
     async getPosts () {
       const response = await PostsService.fetchPosts()
-      this.posts = response.data.posts
+      this.posts = response.data.game_data
     },
     async deletePost (id) {
       await PostsService.deletePost(id)

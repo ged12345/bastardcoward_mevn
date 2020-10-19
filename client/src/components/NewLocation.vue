@@ -1,5 +1,6 @@
 <template>
   <div class="locations">
+    <overviewmenu></overviewmenu>
     <h1>Add Location</h1>
     <div class="form">
       <div>
@@ -19,6 +20,7 @@
 </template>
 
 <script>
+import OverviewMenu from '@/components/OverviewMenu'
 import LocationsService from '@/services/LocationsService'
 export default {
   name: 'NewLocation',
@@ -49,6 +51,9 @@ export default {
       })
       this.$router.push({ name: 'Locations' })
     }
+  },
+  components: {
+    overviewmenu: OverviewMenu
   }
 }
 </script>

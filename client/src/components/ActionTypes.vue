@@ -11,7 +11,7 @@
           <td width="450">Description</td>
           <td width="100" align="center">Action</td>
         </tr>
-        <tr v-for="action_type in action_types" v-bind:key="action_type">
+        <tr v-for="action_type in action_types" v-bind:key="action_type.type">
           <td>{{ action_type.type }}</td>
           <td>{{ action_type.description }}</td>
 
@@ -51,7 +51,7 @@ export default {
   methods: {
     async getActionTypes () {
       const response = await ActionsService.fetchActionTypes()
-      this.action_types = response.data.action_types
+      this.action_types = response.data.game_data
     },
     async deleteActionType (id) {
       await ActionsService.deleteActionType(id)

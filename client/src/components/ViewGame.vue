@@ -7,16 +7,25 @@
 <script>
 import LocationsService from '@/services/LocationsService'
 import ActionsService from '@/services/ActionsService'
+import MonstersService from '@/services/MonstersService'
+import DamageTypesService from '@/services/DamageTypesService'
+import checkResponseAndReturnValue from '../assets/js/networkResponse'
 
 export default {
   name: 'ViewGame',
   data () {
     return {
       currentLocationID: this.$route.params.id,
-      actions: []
+      actions: [],
+      monsters: []
     }
   },
   methods: {
+    clearRoom: function () {
+      // Reset room variables - seperate function
+      this.monsters = []
+      this.actions = []
+    },
     addRunActionVanillaJSToDOM: function (locationNum) {
       // Create the element
       var script = document.createElement('script')
@@ -25,11 +34,169 @@ export default {
         "function runAction(locationNum) { console.error(locationNum); window.location = '/' + locationNum; }"
       // Append
       document.head.appendChild(script)
+    },
+    parseDiceRolls: function (diceRollString) {
+      let rollTotal = 0
+      let diceRollsArr = String(diceRollString).split(' + ')
+
+      diceRollsArr.forEach((roll) => {
+        if (roll.indexOf('d') !== -1) {
+          let diceRoll = 0
+          let multiplier = parseInt(roll[0], 10)
+          if (isNaN(multiplier)) {
+            diceRoll = Math.ceil(Math.random() * roll[1])
+            rollTotal += parseInt(diceRoll, 10)
+          } else {
+            diceRoll = Math.ceil(Math.random() * roll[2])
+            rollTotal += parseInt(multiplier * diceRoll, 10)
+          }
+        } else {
+          // Always parse in case of string
+          rollTotal += parseInt(roll, 10)
+        }
+      })
+      // Ensure we return an Int
+      return parseInt(rollTotal, 10)
+    },
+    getMonsterDamageTypes: async function (monster) {
+      let damageRollStringArr = []
+
+      /* monster.damage_types.forEach(async (damageTypeName) => {
+        const damageType = await checkResponseAndReturnValue(await DamageTypesService.findDamageType(damageTypeName.trim()))
+
+        if (damageType !== null) {
+          damageRollStringArr.push(damageType.damage)
+        }
+      }) */
+
+      const promises = monster.damage_types.map(async (damageTypeName) => {
+        const damageType = await checkResponseAndReturnValue(await DamageTypesService.findDamageType(damageTypeName.trim()))
+        if (damageType !== null) {
+          damageRollStringArr.push(damageType.damage)
+        }
+      })
+      await Promise.all(promises)
+      // damageRollStringArr.forEach(el => console.log(el))
+
+      // Was returning an empty array[] with objects inside?
+      return Array(damageRollStringArr)
+    },
+    doBattleAction: async function () {
+      if (this.monsters.length !== 0) {
+      // Do battle with the monsters. We'll write a basic version here but farm out all this action logic later.abs
+
+      // Find monster archetype
+        let monsterArr = []
+
+        let promises = this.monsters.map(async (monster) => {
+          monsterArr.push(await checkResponseAndReturnValue(await MonstersService.findMonster(monster)))
+        })
+
+        await Promise.all(promises)
+
+        if (monsterArr.every(monster => monster !== null)) {
+          // Need to add playerObject
+          let playerHealth = 40
+
+          console.log('Starting Battle...')
+          console.log('Beginning Player health: ' + playerHealth)
+          console.log('Beginning Monsters health:')
+          monsterArr.forEach((monster) => {
+            console.log(monster.name + ': ' + monster.health)
+          })
+          console.log('\n\n')
+
+          while (playerHealth > 0 && monsterArr.some(monster => monster.health > 0)) {
+            let monsterDiceRolls = []
+
+            console.log('Starting Round...')
+
+            promises = monsterArr.map(async (monster) => {
+              monsterDiceRolls.push(await this.getMonsterDamageTypes(monster))
+            })
+
+            await Promise.all(promises)
+
+            // Initialise monster roll total arrayarray
+            let monsterRollTotal = []
+            monsterArr.forEach(async (monster) => {
+              monsterRollTotal.push(0)
+            })
+
+            // Let the monster attack
+            let monsterIndex = 0
+            monsterDiceRolls.forEach((diceRoll) => {
+              console.log(`${monsterArr[monsterIndex].name} Roll: ${diceRoll}`)
+
+              monsterRollTotal[monsterIndex] += this.parseDiceRolls(diceRoll)
+              playerHealth -= monsterRollTotal[monsterIndex]
+
+              monsterIndex++
+            })
+
+            monsterIndex = 0
+            monsterArr.forEach(async (monster) => {
+              console.log(`${monster.name} Total Damage: ${monsterRollTotal[monsterIndex]}`)
+
+              monsterIndex++
+            })
+
+            monsterIndex = 0
+            monsterArr.forEach(async (monster) => {
+              // Will need to build a statemachine for physical damage and magic damage/effects and objects usage
+              // We work this out later from level/stats - Skill/Strength? Or from Assination/Brawling?
+              let playerDiceRoll = '3d3 + 1'
+
+              console.log(`Player Roll: ${playerDiceRoll}`)
+              let playerRollTotal = this.parseDiceRolls(playerDiceRoll)
+              console.log(`Player Total Damage -> ${monster.name}: ${playerRollTotal}`)
+
+              monster.health -= playerRollTotal
+
+              monsterIndex++
+            })
+
+            // Note: Do we add dodge or armour scores? We're an assassin so we would have chance to dodge/parry. What about the opponent? Based on skill lebvel with weapon/armour? KISS )Keep It Simple Stupid).
+            // Create player object
+            // Create ability to pickup items and store
+            // Create ability to generate stored event we can check later
+            // Do some luck tests etc.
+
+            // Pop any monsters off the array whose health is 0 or less.
+            monsterArr.map(async (monster) => {
+              let monsterIndex = monsterArr.indexOf(monster)
+
+              if (monster.health < 1 && monsterIndex > -1) {
+                console.log(`-----------\n`)
+                console.log(`You killed ${monster.name}!\n`)
+                console.log(`-----------\n\n`)
+                monsterArr.splice(monsterIndex, 1)
+              }
+            })
+
+            console.log('\nEnd of Round')
+            console.log('Player health: ' + playerHealth)
+            console.log('Monsters health:')
+            monsterArr.forEach((monster) => {
+              console.log(monster.name + ': ' + monster.health)
+            })
+            console.log('\n\n')
+          }
+
+          if (monsterArr.length === 0) {
+            console.log('YOU WON THE BATTLE!')
+          } else {
+            console.log("YOU'RE DEAD, NOBLE WARRIOR.")
+          }
+        }
+      }
     }
   },
   async mounted () {
     // Add vanilla JS functions
     this.addRunActionVanillaJSToDOM()
+
+    this.clearRoom()
 
     if (this.$route.params.id === undefined) {
       this.currentLocationID = 1
@@ -52,27 +219,39 @@ export default {
       ) { log.innerHTML += `${e.key}` }
     }
 
+    // THERE IS A JAVASCRIPT LIBRARY DOES THE PRINTING FOR US!!!!
+    // Investigate: https://mntn-dev.github.io/t.js/
     // Fetch the location information including the actions
     const locationResponse = await LocationsService.findLocation(
       this.currentLocationID
     )
 
     // No response to room location request
-    if (locationResponse.data.length === 0) return
+    if (locationResponse.data.game_data.length === 0) return
 
     // Then we request every action to do with this room, and after the first pass where we set the description, we replace each number with whatever special symbol we decide on with a link to the action and a generic function that will run our actions for us. May even add a field in action to link to another action (one after another so we can chain them together).
 
-    const actionsResponse = await ActionsService.getActionsForLocationID({
+    this.actions = await checkResponseAndReturnValue(await ActionsService.getActionsForLocationID({
       location_id: this.currentLocationID
-    })
-    this.actions = actionsResponse.data.actions
+    }), 0, 'end')
+
+    // Important: Every room contains an action of some sort!!
+    if (this.actions === null) return
 
     // There will also eventually be monsters, and when that happens we'll go to another screen and then come back once the battle is over.
+    let levelString = `<br><strong>${locationResponse.data.game_data[0].title}</strong><br><br>${locationResponse.data.game_data[0].description}<br><br>`
 
-    let levelString = `<br><strong>${locationResponse.data[0].title}</strong><br><br>${locationResponse.data[0].description}<br><br>`
-    this.actions.forEach(element => {
-      levelString += `<a href="#" onclick="runAction(${element.metadata}); return false;">${element.location_num}. ${element.description}</a><br>`
+    this.actions.forEach(action => {
+      // We currently only show locations, not other actions (like a character action - picking up an object etc.)
+      if (action.type === 'LOC') {
+        levelString += `<a href="#" onclick="runAction(${action.metadata}); return false;">${action.location_num}. ${action.description}</a><br>`
+      } else if (action.type === 'BAT_AUTO') {
+        // Monster name is in metadata
+        this.monsters.push(action.metadata)
+      }
     })
+
+    // If we have a battle as soon as we enter the location, we should start the battle or event - will have to work out how we partition out this code and indicate a pasue is needed before the next event. Event manager stack?
 
     // Add space after options
     levelString += '<br><br>'
@@ -90,6 +269,7 @@ export default {
       if (levelStringIndex > levelString.length - 1) {
         // Stop the displaying of text.
         clearInterval(screenInterval)
+        this.doBattleAction()
         return
       }
 
