@@ -11,13 +11,14 @@ app.use(cors());
 app.listen(process.env.PORT || 8081);
 
 var mongoose = require("mongoose");
-mongoose.connect("mongodb://127.0.0.1:37017/bastardcoward");
+mongoose.connect("mongodb://127.0.0.1:27017/bastardcoward");
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function (callback) {
     console.log("Connection Succeeded");
 });
 
+var Player = require("../models/player");
 var Action = require("../models/actions");
 var ActionType = require("../models/action_types");
 var Event = require("../models/events");
@@ -25,8 +26,105 @@ var Location = require("../models/locations");
 var Monster = require("../models/monsters");
 var DamageType = require("../models/damage_types");
 
-// ACTIONS CRUD API
+// PLAYER CRUD API
+// Add new player (one max)
+app.post("/player", (req, res) => {
+    var db = req.db;
+    var name = req.body.name;
+    var health = req.body.health;
+    var max_health = req.body.max_health;
+    var chaos = req.body.chaos;
+    var max_chaos = req.body.max_chaos;
+    var chaos_spec = req.body.chaos_spec;
+    var brawl = req.body.brawl;
+    var assassinate = req.body.assassinate;
+    var fighting_spec = req.body.fighting_spec;
+    var fate = req.body.fate;
 
+    var new_player = new Player({
+        name: name,
+        health: health,
+        max_health: max_health,
+        chaos: chaos,
+        max_chaos: max_chaos,
+        chaos_spec: chaos_spec,
+        brawl: brawl,
+        assassinate: assassinate,
+        fighting_spec: fighting_spec,
+        fate: fate,
+    });
+
+    Player.count(null, function (err, count) {
+        if (count < 1) {
+            new_player.save(function (error) {
+                if (error) {
+                    console.log(error);
+                }
+                res.send({
+                    success: true,
+                    message: "Player saved successfully!",
+                });
+            });
+        }
+    });
+});
+
+// Fetch single player
+app.get("/player", (req, res) => {
+    var db = req.db;
+
+    Player.findOne(
+        null,
+        "name health max_health chaos max_chaos chaos_spec brawl assassinate fighting_spec fate exp",
+        function (error, action) {
+            if (error) {
+                console.error(error);
+            }
+            res.send({
+                game_data: action,
+            });
+        }
+    );
+});
+
+// Update a player
+app.put("/player", (req, res) => {
+    var db = req.db;
+    Player.findOne(
+        null,
+        "name health max_health chaos max_chaos chaos_spec brawl assassinate fighting_spec fate exp",
+        function (error, player) {
+            if (error) {
+                console.error(error);
+            }
+
+            player.name = req.body.name;
+            player.health = req.body.health;
+            player.max_health = req.body.max_health;
+            player.chaos = req.body.chaos;
+            player.max_chaos = req.body.max_chaos;
+            player.chaos_spec = req.body.chaos_spec;
+            player.brawl = req.body.brawl;
+            player.assassinate = req.body.assassinate;
+            player.fighting_spec = req.body.fighting_spec;
+            player.fate = req.body.fate;
+            player.exp = req.body.exp;
+
+            console.error(player);
+
+            player.save(function (error) {
+                if (error) {
+                    console.log(error);
+                }
+                res.send({
+                    success: true,
+                });
+            });
+        }
+    );
+});
+
+// ACTIONS CRUD API
 // Fetch actions based on location_id
 app.get("/actions/:id/location_id", (req, res) => {
     console.error(req.params);
@@ -161,17 +259,19 @@ app.delete("/actions/:id", (req, res) => {
 
 // Find all action types
 app.get("/action_types", (req, res) => {
-    ActionType.find({}, "type description", { sort: { type: 1 } }, function (
-        error,
-        action_types
-    ) {
-        if (error) {
-            console.error(error);
+    ActionType.find(
+        {},
+        "type description",
+        { sort: { type: 1 } },
+        function (error, action_types) {
+            if (error) {
+                console.error(error);
+            }
+            res.send({
+                game_data: action_types,
+            });
         }
-        res.send({
-            game_data: action_types,
-        });
-    }).sort({ _id: -1 });
+    ).sort({ _id: -1 });
 });
 
 // Find action type by type name
@@ -218,41 +318,43 @@ app.post("/action_types", (req, res) => {
 app.get("/action_type/:id", (req, res) => {
     var db = req.db;
 
-    ActionType.findById(req.params.id, "type description", function (
-        error,
-        action
-    ) {
-        if (error) {
-            console.error(error);
+    ActionType.findById(
+        req.params.id,
+        "type description",
+        function (error, action) {
+            if (error) {
+                console.error(error);
+            }
+            res.send({
+                game_data: action,
+            });
         }
-        res.send({
-            game_data: action,
-        });
-    });
+    );
 });
 
 // Update an action
 app.put("/action_types/:id", (req, res) => {
     var db = req.db;
-    ActionType.findById(req.params.id, "type description", function (
-        error,
-        action
-    ) {
-        if (error) {
-            console.error(error);
-        }
-
-        action.type = req.body.type;
-        action.description = req.body.description;
-        action.save(function (error) {
+    ActionType.findById(
+        req.params.id,
+        "type description",
+        function (error, action) {
             if (error) {
-                console.log(error);
+                console.error(error);
             }
-            res.send({
-                success: true,
+
+            action.type = req.body.type;
+            action.description = req.body.description;
+            action.save(function (error) {
+                if (error) {
+                    console.log(error);
+                }
+                res.send({
+                    success: true,
+                });
             });
-        });
-    });
+        }
+    );
 });
 
 // Delete an action type
@@ -317,42 +419,44 @@ app.get("/locations", (req, res) => {
 app.get("/location/:id", (req, res) => {
     var db = req.db;
 
-    Location.findById(req.params.id, "title description location_id", function (
-        error,
-        location
-    ) {
-        if (error) {
-            console.error(error);
+    Location.findById(
+        req.params.id,
+        "title description location_id",
+        function (error, location) {
+            if (error) {
+                console.error(error);
+            }
+            res.send({
+                game_data: location,
+            });
         }
-        res.send({
-            game_data: location,
-        });
-    });
+    );
 });
 
 // Update a location
 app.put("/locations/:id", (req, res) => {
     var db = req.db;
-    Location.findById(req.params.id, "title description location_id", function (
-        error,
-        location
-    ) {
-        if (error) {
-            console.error(error);
-        }
-
-        location.title = req.body.title;
-        location.description = req.body.description;
-        location.location_id = req.body.location_id;
-        location.save(function (error) {
+    Location.findById(
+        req.params.id,
+        "title description location_id",
+        function (error, location) {
             if (error) {
-                console.log(error);
+                console.error(error);
             }
-            res.send({
-                success: true,
+
+            location.title = req.body.title;
+            location.description = req.body.description;
+            location.location_id = req.body.location_id;
+            location.save(function (error) {
+                if (error) {
+                    console.log(error);
+                }
+                res.send({
+                    success: true,
+                });
             });
-        });
-    });
+        }
+    );
 });
 
 // Delete an location
@@ -373,17 +477,19 @@ app.delete("/locations/:id", (req, res) => {
 
 // Get max location_id
 app.get("/locations/max_location_id/", (req, res) => {
-    Location.find({}, "location_id", { sort: { location_id: -1 } }, function (
-        error,
-        locations
-    ) {
-        if (error) {
-            console.error(error);
+    Location.find(
+        {},
+        "location_id",
+        { sort: { location_id: -1 } },
+        function (error, locations) {
+            if (error) {
+                console.error(error);
+            }
+            res.send({
+                game_data: locations,
+            });
         }
-        res.send({
-            game_data: locations,
-        });
-    });
+    );
 });
 
 // Find location by location_id
@@ -558,17 +664,19 @@ app.post("/damage_types", (req, res) => {
 
 // Fetch all damage types
 app.get("/damage_types", (req, res) => {
-    DamageType.find({}, "name damage modifier description", {}, function (
-        error,
-        damage_types
-    ) {
-        if (error) {
-            console.error(error);
+    DamageType.find(
+        {},
+        "name damage modifier description",
+        {},
+        function (error, damage_types) {
+            if (error) {
+                console.error(error);
+            }
+            res.send({
+                game_data: damage_types,
+            });
         }
-        res.send({
-            game_data: damage_types,
-        });
-    }).sort({ _id: -1 });
+    ).sort({ _id: -1 });
 });
 
 // Fetch single damage type

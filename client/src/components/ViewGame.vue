@@ -7,17 +7,26 @@
 <script>
 import LocationsService from '@/services/LocationsService'
 import ActionsService from '@/services/ActionsService'
+import PlayerService from '@/services/PlayerService'
 import MonstersService from '@/services/MonstersService'
 import DamageTypesService from '@/services/DamageTypesService'
 import checkResponseAndReturnValue from '../assets/js/networkResponse'
+import DisplayText from '../assets/js/displayText'
+import GameQueue from '../assets/js/gameQueue'
 
 export default {
   name: 'ViewGame',
   data () {
     return {
       currentLocationID: this.$route.params.id,
+      gameQueue: new GameQueue(),
+      gameQueueLocked: false,
+      heartbeatInterval: 0,
+      levelString: '',
       actions: [],
-      monsters: []
+      monsters: [],
+      player: null,
+      startBattle: false
     }
   },
   methods: {
@@ -34,6 +43,74 @@ export default {
         "function runAction(locationNum) { console.error(locationNum); window.location = '/' + locationNum; }"
       // Append
       document.head.appendChild(script)
+    },
+    startHeartbeat: function () {
+      // Heartbeat every half-second so we don't take up all the resources.
+      this.heartbeatInterval = setInterval(() => {
+        if (this.gameQueueLocked === false) {
+          if (this.gameQueue.front()) {
+            this.gameQueue.front()()
+          }
+        }
+      }, 1000)
+    },
+    addToGameQueue: function (nextHeartbeatEl) {
+      this.gameQueue.enqueue(() => {
+        this.gameQueueLocked = true
+        nextHeartbeatEl()
+        this.gameQueue.dequeue()
+        this.gameQueueLocked = false
+      })
+    },
+    displayGameText: function (textToDisplay, callback) {
+      let screenInterval = setInterval(() => {
+        if (!DisplayText.display(textToDisplay, callback)) {
+          clearInterval(screenInterval)
+          this.levelString = ''
+        }
+      }, 2)
+    },
+    addGameText: function (textToDisplay) {
+      this.levelString += textToDisplay
+    },
+    addGameTextLine: function (textLineToDisplay) {
+      this.levelString += (textLineToDisplay + '<br>')
+    },
+    showGameText: function () {
+      this.addToGameQueue(() => { this.displayGameText(this.levelString) })
+    },
+    doBattleRound: function () {
+      this.addToGameQueue(() => {
+        // If we havent finished battle, we run another battle round
+        this.showGameText()
+        if (this.doBattleAction()) {
+          // Add prompts for this battle?
+          this.doBattleRound()
+        }
+      })
+    },
+    initPlayer: async function () {
+      const player = await PlayerService.getPlayer()
+
+      // No response to room location request
+      if (player.data.game_data.length !== 0) {
+        this.player = player.data.game_data
+      }
+    },
+    updatePlayer: async function () {
+      await PlayerService.updatePlayer({
+        name: this.player.name,
+        health: this.player.health,
+        max_health: this.player.max_health,
+        chaos: this.player.chaos,
+        max_chaos: this.player.max_chaos,
+        chaos_spec: this.player.chaos_spec,
+        brawl: this.player.brawl,
+        assassinate: this.player.assassinate,
+        fighting_spec: this.player.fighting_spec,
+        fate: this.player.fate,
+        exp: this.player.exp
+      })
     },
     parseDiceRolls: function (diceRollString) {
       let rollTotal = 0
@@ -82,127 +159,167 @@ export default {
       return Array(damageRollStringArr)
     },
     doBattleAction: async function () {
-      if (this.monsters.length !== 0) {
+      if (this.monsters.length !== 0 || this.player.health <= 0) {
       // Do battle with the monsters. We'll write a basic version here but farm out all this action logic later.abs
 
-      // Find monster archetype
-        let monsterArr = []
+        if (this.startBattle === false) {
+          // Find monster archetype
+          let monsterArr = []
 
-        let promises = this.monsters.map(async (monster) => {
-          monsterArr.push(await checkResponseAndReturnValue(await MonstersService.findMonster(monster)))
-        })
+          let promises = this.monsters.map(async (monster) => {
+            monsterArr.push(await checkResponseAndReturnValue(await MonstersService.findMonster(monster)))
+          })
 
-        await Promise.all(promises)
+          await Promise.all(promises)
 
-        if (monsterArr.every(monster => monster !== null)) {
-          // Need to add playerObject
-          let playerHealth = 40
+          // Replace monster name array with actual array from API
+          this.monsters = monsterArr
+          this.startBattle = true
 
           console.log('Starting Battle...')
-          console.log('Beginning Player health: ' + playerHealth)
+          this.addGameTextLine('Starting Battle...')
+          console.log('Beginning Player health: ' + this.player.health)
+          this.addGameTextLine('Beginning Player health: ' + this.player.health)
           console.log('Beginning Monsters health:')
-          monsterArr.forEach((monster) => {
+          this.addGameTextLine('Beginning Monsters health:')
+          this.monsters.forEach((monster) => {
             console.log(monster.name + ': ' + monster.health)
+            this.addGameTextLine(monster.name + ': ' + monster.health)
+          })
+          // Keep origial health so we can add it to player exp
+          this.monsters.map((monster) => ({...monster, 'original_health': monster.health}))
+          console.log('\n\n')
+        }
+
+        if (this.player.health > 0 && this.monsters.some(monster => monster.health > 0)) {
+          let monsterDiceRolls = []
+
+          this.addGameTextLine('<br>Starting Round')
+          console.log('Starting Round...')
+
+          let promises = this.monsters.map(async (monster) => {
+            monsterDiceRolls.push(await this.getMonsterDamageTypes(monster))
+          })
+
+          await Promise.all(promises)
+
+          // Initialise monster roll total arrayarray
+          let monsterRollTotal = []
+          this.monsters.forEach(async (monster) => {
+            monsterRollTotal.push(0)
+          })
+
+          // Let the monster attack
+          let monsterIndex = 0
+          monsterDiceRolls.forEach((diceRoll) => {
+            this.addGameTextLine(`${this.monsters[monsterIndex].name} Roll: ${diceRoll}`)
+            console.log(`${this.monsters[monsterIndex].name} Roll: ${diceRoll}`)
+
+            monsterRollTotal[monsterIndex] += this.parseDiceRolls(diceRoll)
+            this.player.health -= monsterRollTotal[monsterIndex]
+
+            monsterIndex++
+          })
+
+          monsterIndex = 0
+          this.monsters.forEach(async (monster) => {
+            this.addGameTextLine(`${monster.name} Total Damage: ${monsterRollTotal[monsterIndex]}`)
+            console.log(`${monster.name} Total Damage: ${monsterRollTotal[monsterIndex]}`)
+
+            monsterIndex++
+          })
+
+          monsterIndex = 0
+          this.monsters.forEach(async (monster) => {
+            // Will need to build a statemachine for physical damage and magic damage/effects and objects usage
+            // We work this out later from level/stats - Skill/Strength? Or from Assination/Brawling?
+            let playerDiceRoll = '3d3 + 1'
+
+            this.addGameTextLine(`Player Roll: ${playerDiceRoll}`)
+            console.log(`Player Roll: ${playerDiceRoll}`)
+            let playerRollTotal = this.parseDiceRolls(playerDiceRoll)
+            this.addGameTextLine(`Player Total Damage -> ${monster.name}: ${playerRollTotal}`)
+            console.log(`Player Total Damage -> ${monster.name}: ${playerRollTotal}`)
+
+            monster.health -= playerRollTotal
+
+            monsterIndex++
+          })
+
+          // Note: Do we add dodge or armour scores? We're an assassin so we would have chance to dodge/parry. What about the opponent? Based on skill level with weapon/armour? KISS )Keep It Simple Stupid).
+          // Create player object
+          // Travelling creatures and weather events (which impact magic).
+          // Possible sun/moon daytime and nighttime - assassination works better during the night but daytime means less destructive monsters after you?
+          // Create ability for player to use magic and some limited monsters magic usage
+          // Create ability to perm maim/curse a monster
+          // Create ability to get maimed (with slow auto-regeneration but hurts for the one battle)
+          // Create ability to pickup items and store
+          // Create ability to generate stored event we can check later
+          // Do some luck tests etc.
+
+          // Pop any monsters off the array whose health is 0 or less.
+          this.monsters.map(async (monster) => {
+            let monsterIndex = this.monsters.indexOf(monster)
+
+            if (monster.health < 1 && monsterIndex > -1) {
+              console.log(`-----------\n`)
+              console.log(`You killed ${monster.name}!\n`)
+              console.log(`-----------\n\n`)
+
+              this.addGameTextLine(`You killed ${monster.name}!\n`)
+
+              // Once the player kills a monster, pass along the experience (we will later upgrade their chosen specialties based on this exp)
+              this.player.exp = this.player.exp + this.monsters[monsterIndex].original_health
+
+              this.monsters.splice(monsterIndex, 1)
+            }
+          })
+
+          this.addGameTextLine('\nEnd of Round')
+          this.addGameTextLine('Player health: ' + this.player.health)
+          this.addGameTextLine('Monsters health:')
+
+          console.log('\nEnd of Round')
+          console.log('Player health: ' + this.player.health)
+          console.log('Monsters health:')
+          this.monsters.forEach((monster) => {
+            console.log(monster.name + ': ' + monster.health)
+            this.addGameTextLine(monster.name + ': ' + monster.health)
           })
           console.log('\n\n')
 
-          while (playerHealth > 0 && monsterArr.some(monster => monster.health > 0)) {
-            let monsterDiceRolls = []
+          this.updatePlayer()
 
-            console.log('Starting Round...')
-
-            promises = monsterArr.map(async (monster) => {
-              monsterDiceRolls.push(await this.getMonsterDamageTypes(monster))
-            })
-
-            await Promise.all(promises)
-
-            // Initialise monster roll total arrayarray
-            let monsterRollTotal = []
-            monsterArr.forEach(async (monster) => {
-              monsterRollTotal.push(0)
-            })
-
-            // Let the monster attack
-            let monsterIndex = 0
-            monsterDiceRolls.forEach((diceRoll) => {
-              console.log(`${monsterArr[monsterIndex].name} Roll: ${diceRoll}`)
-
-              monsterRollTotal[monsterIndex] += this.parseDiceRolls(diceRoll)
-              playerHealth -= monsterRollTotal[monsterIndex]
-
-              monsterIndex++
-            })
-
-            monsterIndex = 0
-            monsterArr.forEach(async (monster) => {
-              console.log(`${monster.name} Total Damage: ${monsterRollTotal[monsterIndex]}`)
-
-              monsterIndex++
-            })
-
-            monsterIndex = 0
-            monsterArr.forEach(async (monster) => {
-              // Will need to build a statemachine for physical damage and magic damage/effects and objects usage
-              // We work this out later from level/stats - Skill/Strength? Or from Assination/Brawling?
-              let playerDiceRoll = '3d3 + 1'
-
-              console.log(`Player Roll: ${playerDiceRoll}`)
-              let playerRollTotal = this.parseDiceRolls(playerDiceRoll)
-              console.log(`Player Total Damage -> ${monster.name}: ${playerRollTotal}`)
-
-              monster.health -= playerRollTotal
-
-              monsterIndex++
-            })
-
-            // Note: Do we add dodge or armour scores? We're an assassin so we would have chance to dodge/parry. What about the opponent? Based on skill lebvel with weapon/armour? KISS )Keep It Simple Stupid).
-            // Create player object
-            // Create ability to pickup items and store
-            // Create ability to generate stored event we can check later
-            // Do some luck tests etc.
-
-            // Pop any monsters off the array whose health is 0 or less.
-            monsterArr.map(async (monster) => {
-              let monsterIndex = monsterArr.indexOf(monster)
-
-              if (monster.health < 1 && monsterIndex > -1) {
-                console.log(`-----------\n`)
-                console.log(`You killed ${monster.name}!\n`)
-                console.log(`-----------\n\n`)
-                monsterArr.splice(monsterIndex, 1)
-              }
-            })
-
-            console.log('\nEnd of Round')
-            console.log('Player health: ' + playerHealth)
-            console.log('Monsters health:')
-            monsterArr.forEach((monster) => {
-              console.log(monster.name + ': ' + monster.health)
-            })
-            console.log('\n\n')
-          }
-
-          if (monsterArr.length === 0) {
-            console.log('YOU WON THE BATTLE!')
-          } else {
-            console.log("YOU'RE DEAD, NOBLE WARRIOR.")
-          }
+          return true
         }
+      } else {
+        if (this.monsters.length === 0) {
+          console.log('YOU WON THE BATTLE!')
+          this.addGameTextLine('YOU WON THE BATTLE!')
+        } else {
+          console.log("YOU'RE DEAD, NOBLE WARRIOR.")
+          this.addGameTextLine("YOU'RE DEAD, NOBLE WARRIOR.")
+        }
+        // Here we do battle cleanup
+        this.monsters = []
+
+        return false
       }
     }
   },
   async mounted () {
     // Add vanilla JS functions
     this.addRunActionVanillaJSToDOM()
-
     this.clearRoom()
+    this.initPlayer()
 
     if (this.$route.params.id === undefined) {
       this.currentLocationID = 1
     }
 
     const log = document.getElementById('console')
+    // Need this to set where text appears on screen
+    DisplayText.setDisplayElement(log)
     document.addEventListener('keyup', logKey)
 
     function logKey (e) {
@@ -239,114 +356,35 @@ export default {
     if (this.actions === null) return
 
     // There will also eventually be monsters, and when that happens we'll go to another screen and then come back once the battle is over.
-    let levelString = `<br><strong>${locationResponse.data.game_data[0].title}</strong><br><br>${locationResponse.data.game_data[0].description}<br><br>`
+    this.levelString = `<br><strong>${locationResponse.data.game_data[0].title}</strong><br><br>${locationResponse.data.game_data[0].description}<br><br>`
 
     this.actions.forEach(action => {
       // We currently only show locations, not other actions (like a character action - picking up an object etc.)
+      // Note: I don't think we need location_num - this specifies the order (number) next to each location item, we could just have an index?
+      // But what about if we want an action (Pull suspicious rock) and want to intersperse with locations and others - maybe keep but ignore if it doesn't exist (just go through actions willynilly?)
+      // Also, how do we refence an action? A combination of location is and location num? Or do we have a seperate Action Id field?
+      // Also, if detects a particular action (AUTO_BATTLE), maybe metafields then gives ua a selection of monsters?
+      // Combine monsters into one AUTO_BATTLE call (metadata, comma-seperated?
       if (action.type === 'LOC') {
-        levelString += `<a href="#" onclick="runAction(${action.metadata}); return false;">${action.location_num}. ${action.description}</a><br>`
-      } else if (action.type === 'BAT_AUTO') {
-        // Monster name is in metadata
-        this.monsters.push(action.metadata)
+        this.levelString += `<a href="#" onclick="runAction(${action.metadata}); return false;">${action.location_num}. ${action.description}</a><br>`
+      } else if (action.type === 'AUTO_BATTLE') {
+        // Monster names are in metadata
+        action.metadata.split(',').forEach((monsterName) => {
+          this.monsters.push(monsterName.trim())
+        })
       }
     })
 
     // If we have a battle as soon as we enter the location, we should start the battle or event - will have to work out how we partition out this code and indicate a pasue is needed before the next event. Event manager stack?
 
     // Add space after options
-    levelString += '<br><br>'
+    this.levelString += '<br><br>'
 
-    var levelStringIndex = 0
-    var levelStringHTMLTextIndex = 0
-    var levelStringHTMLTextStartIndex = 0
-    var levelStringHTMLTextEndIndex = 0
-    var levelStringHTMLTextLength = 0
-    var startTag = ''
-    var endTag = ''
-    var firstTime = true
+    this.showGameText()
+    this.doBattleRound()
 
-    var screenInterval = setInterval(() => {
-      if (levelStringIndex > levelString.length - 1) {
-        // Stop the displaying of text.
-        clearInterval(screenInterval)
-        this.doBattleAction()
-        return
-      }
-
-      // Make this more efficient - needs to be called per a line, not per a character but is working as auto-scrolling
-      window.scrollBy(0, 100)
-
-      if (levelStringHTMLTextIndex <= levelStringHTMLTextEndIndex - 1) {
-        levelStringHTMLTextIndex = levelStringHTMLTextIndex + 1
-
-        // On the first run for these particular brackets, there are no brackets/html elements to remove
-        if (!firstTime) {
-          // We remove the tags, if any
-          let indexToRemoveFrom = log.innerHTML.lastIndexOf(
-            '<',
-            log.innerHTML.length - 1 - endTag.length
-          )
-
-          let newStr = log.innerHTML.split('')
-          newStr.splice(
-            indexToRemoveFrom,
-            startTag.length + levelStringHTMLTextLength - 1 + endTag.length
-          )
-          newStr = newStr.join('')
-          log.innerHTML = newStr
-        } else {
-          firstTime = false
-        }
-        // We re-add the tags with the current text
-        log.innerHTML +=
-          startTag +
-          levelString.substring(
-            levelStringHTMLTextStartIndex,
-            levelStringHTMLTextIndex
-          ) +
-          endTag
-      } else if (levelString.substr(levelStringIndex, 4) === '<br>') {
-        /* console.error(levelStringIndex);
-        console.error(log.innerHTML); */
-        log.innerHTML += '<br>'
-        levelStringIndex = levelStringIndex + 4
-      } else if (levelString[levelStringIndex] === '<') {
-        levelStringHTMLTextIndex = 0
-        levelStringHTMLTextStartIndex = 0
-        levelStringHTMLTextEndIndex = 0
-        levelStringHTMLTextLength = 0
-        startTag = ''
-        endTag = ''
-        firstTime = true
-
-        // Find the end of start tag
-        let endOfStartTagIndex = levelString.indexOf('>', levelStringIndex)
-        startTag = levelString.substring(
-          levelStringIndex,
-          endOfStartTagIndex + 1
-        )
-        endTag = startTag.slice(0, 1) + '/' + startTag.slice(1)
-
-        levelStringHTMLTextIndex = levelStringHTMLTextStartIndex =
-          levelStringIndex + startTag.length
-
-        // We find the second tag here and calculate the length of the HTML internal text
-        levelStringHTMLTextLength =
-          levelString.indexOf('<', levelStringHTMLTextIndex) -
-          levelStringHTMLTextIndex
-
-        levelStringHTMLTextEndIndex =
-          levelStringHTMLTextIndex + levelStringHTMLTextLength
-
-        // The below is the start of the next part of text
-        levelStringIndex =
-          levelString.indexOf('>', levelStringHTMLTextIndex) + 1
-      } else {
-        // If no html string, then we just keep going as usual
-        log.innerHTML += levelString[levelStringIndex]
-        levelStringIndex++
-      }
-    }, 2)
+    // Start game queue/heartbeat interval that will run while we're on this page
+    this.startHeartbeat()
   }
 }
 </script>

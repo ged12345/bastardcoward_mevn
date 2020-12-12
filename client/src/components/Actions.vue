@@ -23,7 +23,7 @@
 
           <td align="center">
             <router-link v-bind:to="{ name: 'EditAction', params: { id: action._id } }">Edit</router-link>&nbsp;|
-            <a href="#" @click="deleteAction(action._id)">Delete</a>
+            <a href="" @click="deleteAction(action._id)">Delete</a>
           </td>
         </tr>
       </table>

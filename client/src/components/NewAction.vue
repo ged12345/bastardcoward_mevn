@@ -2,6 +2,7 @@
   <div class="actions">
     <overviewmenu></overviewmenu>
     <h1>Add Action</h1>
+    <strong>Note: Location Num is actually the order events run in that location.</strong>
     <div class="form">
       <div class="panel-body">
         <aclocationid

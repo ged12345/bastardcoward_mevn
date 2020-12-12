@@ -5,6 +5,7 @@
       <router-link v-bind:to="{ name: 'NewLocation' }" class>(Add)</router-link>
     </h1>
     <div v-if="locations.length > 0" class="table-wrap">
+      <strong>Note: Each location needs at least 1 action!</strong>
       <table>
         <tr>
           <td>Location ID</td>
